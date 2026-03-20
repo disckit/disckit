@@ -1,0 +1,49 @@
+{
+  "name": "@disckit/cooldown",
+  "version": "1.1.0",
+  "description": "Per-user, per-guild, per-command cooldown manager for bots. Supports bypass lists and duration overrides.",
+  "main": "src/index.js",
+  "author": "disckit",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "cooldown",
+    "bot",
+    "discord",
+    "rate-limit",
+    "command"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/disckit/disckit.git",
+    "directory": "cooldown"
+  },
+  "bugs": {
+    "url": "https://github.com/disckit/disckit/issues"
+  },
+  "homepage": "https://github.com/disckit/disckit/tree/main/cooldown#readme",
+  "files": [
+    "src/",
+    "types/",
+    "README.md",
+    "LICENSE",
+    "docs/"
+  ],
+  "dependencies": {},
+  "scripts": {
+    "test": "node --test tests/run.js",
+    "test:run": "node tests/run.js"
+  },
+  "types": "types/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./src/index.js",
+      "default": "./src/index.js"
+    }
+  },
+  "devDependencies": {
+    "vitest": "^2.0.0"
+  }
+}
