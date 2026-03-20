@@ -1,0 +1,39 @@
+{
+  "name": "disckit",
+  "version": "1.0.3",
+  "description": "All @disckit packages in one install.",
+  "main": "src/index.js",
+  "author": "disckit",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "disckit",
+    "discord",
+    "bot",
+    "dashboard",
+    "utilities"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/disckit/disckit.git",
+    "directory": "disckit"
+  },
+  "bugs": {
+    "url": "https://github.com/disckit/disckit/issues"
+  },
+  "homepage": "https://github.com/disckit/disckit/tree/main/disckit#readme",
+  "files": [
+    "src/",
+    "README.md",
+    "LICENSE"
+  ],
+  "dependencies": {
+    "@disckit/paginator": "^1.0.3",
+    "@disckit/i18n": "^1.0.3",
+    "@disckit/permissions": "^1.0.3",
+    "@disckit/cooldown": "^1.0.3"
+  },
+  "scripts": {}
+}
