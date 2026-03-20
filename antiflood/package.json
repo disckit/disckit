@@ -1,0 +1,51 @@
+{
+  "name": "@disckit/antiflood",
+  "version": "1.1.0",
+  "description": "Advanced per-user+command+guild rate limiter with burst window, progressive penalty and role whitelist.",
+  "main": "src/index.js",
+  "types": "types/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./src/index.js",
+      "default": "./src/index.js"
+    }
+  },
+  "author": "disckit",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "discord",
+    "bot",
+    "ratelimit",
+    "antiflood",
+    "cooldown"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/disckit/disckit.git",
+    "directory": "antiflood"
+  },
+  "bugs": {
+    "url": "https://github.com/disckit/disckit/issues"
+  },
+  "homepage": "https://github.com/disckit/disckit/tree/main/antiflood#readme",
+  "files": [
+    "src/",
+    "types/",
+    "README.md",
+    "LICENSE",
+    "docs/"
+  ],
+  "dependencies": {
+    "@disckit/common": "^1.0.0"
+  },
+  "devDependencies": {
+    "vitest": "^2.0.0"
+  },
+  "scripts": {
+    "test": "node --test tests/run.js",
+    "test:run": "node tests/run.js"
+  }
+}
