@@ -1,0 +1,26 @@
+<svg width="546" height="96" viewBox="0 0 546 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background pill -->
+  <rect width="546" height="96" rx="16" fill="#0D1117"/>
+
+  <!-- Icon: stylized "D" bolt -->
+  <g transform="translate(20, 16)">
+    <!-- Outer circle -->
+    <circle cx="32" cy="32" r="30" fill="#1a1f2e" stroke="#5865F2" stroke-width="1.5"/>
+    <!-- Bolt shape -->
+    <path d="M36 14L22 34H31L28 50L44 28H35L36 14Z" fill="#5865F2"/>
+    <!-- Accent dot -->
+    <circle cx="44" cy="44" r="4" fill="#7289DA" opacity="0.6"/>
+  </g>
+
+  <!-- "disckit" wordmark -->
+  <text x="80" y="58" font-family="'SF Mono', 'Fira Code', 'Cascadia Code', monospace"
+    font-size="40" font-weight="700" letter-spacing="-1"
+    fill="white">disc</text>
+  <text x="196" y="58" font-family="'SF Mono', 'Fira Code', 'Cascadia Code', monospace"
+    font-size="40" font-weight="700" letter-spacing="-1"
+    fill="#5865F2">kit</text>
+
+  <!-- Tagline -->
+  <text x="82" y="78" font-family="'SF Mono', 'Fira Code', monospace"
+    font-size="13" fill="#8b949e" letter-spacing="0.5">utilities for discord bots &amp; dashboards</text>
+</svg>
