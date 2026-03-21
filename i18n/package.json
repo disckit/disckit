@@ -1,0 +1,49 @@
+{
+  "name": "@disckit/i18n",
+  "version": "1.1.0",
+  "description": "Lightweight i18n engine with dot-notation keys, interpolation, pluralization and fallback locale.",
+  "main": "src/index.js",
+  "author": "disckit",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "i18n",
+    "internationalization",
+    "locale",
+    "translation",
+    "bot"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/disckit/disckit.git",
+    "directory": "i18n"
+  },
+  "bugs": {
+    "url": "https://github.com/disckit/disckit/issues"
+  },
+  "homepage": "https://github.com/disckit/disckit/tree/main/i18n#readme",
+  "files": [
+    "src/",
+    "types/",
+    "README.md",
+    "LICENSE",
+    "docs/"
+  ],
+  "dependencies": {},
+  "scripts": {
+    "test": "node --test tests/run.js",
+    "test:run": "node tests/run.js"
+  },
+  "types": "types/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./src/index.js",
+      "default": "./src/index.js"
+    }
+  },
+  "devDependencies": {
+    "vitest": "^2.0.0"
+  }
+}

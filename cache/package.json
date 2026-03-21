@@ -1,0 +1,49 @@
+{
+  "name": "@disckit/cache",
+  "version": "1.1.0",
+  "description": "LRU and TTL cache implementations. Doubly-linked-list + Map for O(1) get/set.",
+  "main": "src/index.js",
+  "types": "types/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./src/index.js",
+      "default": "./src/index.js"
+    }
+  },
+  "author": "disckit",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "cache",
+    "lru",
+    "ttl",
+    "discord",
+    "bot"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/disckit/disckit.git",
+    "directory": "cache"
+  },
+  "bugs": {
+    "url": "https://github.com/disckit/disckit/issues"
+  },
+  "homepage": "https://github.com/disckit/disckit/tree/main/cache#readme",
+  "files": [
+    "src/",
+    "types/",
+    "README.md",
+    "LICENSE",
+    "docs/"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "vitest": "^2.0.0"
+  },
+  "scripts": {
+    "test": "node --test tests/run.js",
+    "test:run": "node tests/run.js"
+  }
+}
