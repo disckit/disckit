@@ -1,0 +1,54 @@
+{
+  "name": "@disckit/paginator",
+  "version": "1.3.0",
+  "description": "Universal pagination engine for bots and dashboards. Supports arrays, REST APIs and Discord button state.",
+  "main": "src/index.js",
+  "author": "disckit",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "pagination",
+    "paginator",
+    "discord",
+    "bot",
+    "dashboard",
+    "rest"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/disckit/disckit.git",
+    "directory": "paginator"
+  },
+  "bugs": {
+    "url": "https://github.com/disckit/disckit/issues"
+  },
+  "homepage": "https://github.com/disckit/disckit/tree/main/paginator#readme",
+  "files": [
+    "src/",
+    "types/",
+    "README.md",
+    "LICENSE",
+    "docs/",
+    "esm/"
+  ],
+  "dependencies": {},
+  "scripts": {
+    "test": "node --test tests/run.js",
+    "test:run": "node tests/run.js"
+  },
+  "types": "types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./esm/index.js",
+      "require": "./src/index.js",
+      "default": "./src/index.js",
+      "types": "./types/index.d.ts"
+    }
+  },
+  "devDependencies": {
+    "vitest": "^2.0.0"
+  },
+  "module": "esm/index.js"
+}

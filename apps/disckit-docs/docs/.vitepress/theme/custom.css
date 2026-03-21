@@ -1,0 +1,82 @@
+/* ── Brand colors ──────────────────────────────────────────────────────────── */
+:root {
+  --vp-c-brand-1:    #ff468a;
+  --vp-c-brand-2:    #e03070;
+  --vp-c-brand-3:    #ff6ba8;
+  --vp-c-brand-soft: rgba(255, 70, 138, 0.14);
+
+  --vp-c-bg:         #0d0d0d;
+  --vp-c-bg-soft:    #111111;
+  --vp-c-bg-mute:    #1a1a1a;
+  --vp-c-divider:    rgba(255, 255, 255, 0.07);
+
+  --vp-code-block-bg: #111111;
+}
+
+/* ── Nav ───────────────────────────────────────────────────────────────────── */
+.VPNavBarTitle .title {
+  font-weight: 700;
+  letter-spacing: -.01em;
+}
+
+/* Hide VitePress layout chrome on home page */
+.layout-disckit-home .VPNav,
+.layout-disckit-home .VPFooter {
+  display: none !important;
+}
+
+/* ── Sidebar active ────────────────────────────────────────────────────────── */
+.VPSidebarItem.is-active > .item .text {
+  color: var(--vp-c-brand-1);
+}
+
+/* ── Inline code ───────────────────────────────────────────────────────────── */
+.vp-doc :not(pre) > code {
+  color: var(--vp-c-brand-1);
+  background-color: rgba(255, 70, 138, 0.08);
+  border: 1px solid rgba(255, 70, 138, 0.15);
+}
+
+/* ── Table header ──────────────────────────────────────────────────────────── */
+.vp-doc table th {
+  background: var(--vp-c-bg-mute);
+}
+
+/* ── Brand button ──────────────────────────────────────────────────────────── */
+.VPButton.brand {
+  background-color: var(--vp-c-brand-1);
+  border-color: var(--vp-c-brand-1);
+}
+.VPButton.brand:hover {
+  background-color: var(--vp-c-brand-2);
+  border-color: var(--vp-c-brand-2);
+}
+
+/* ── Badge ─────────────────────────────────────────────────────────────────── */
+.vp-badge.tip {
+  background-color: rgba(255, 70, 138, 0.12);
+  color: #ff468a;
+  border-color: rgba(255, 70, 138, 0.25);
+}
+
+/* ── Doc container ─────────────────────────────────────────────────────────── */
+.VPDoc .container { max-width: 900px; }
+
+/* ── Guide page — sidebar like discord.js guide ────────────────────────────── */
+.VPSidebar {
+  background: var(--vp-c-bg-soft) !important;
+  border-right: 1px solid var(--vp-c-divider) !important;
+}
+
+.VPSidebarItem .text {
+  font-size: 0.875rem;
+}
+
+/* Section header in sidebar */
+.VPSidebarItem.level-0 > .item > .text {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--vp-c-text-3);
+}
