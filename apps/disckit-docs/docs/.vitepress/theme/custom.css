@@ -1,0 +1,68 @@
+/* disckit custom theme — overrides VitePress brand colors */
+
+:root {
+  --vp-c-brand-1:        #ff468a;
+  --vp-c-brand-2:        #e03070;
+  --vp-c-brand-3:        #ff6ba8;
+  --vp-c-brand-soft:     rgba(255, 70, 138, 0.14);
+
+  /* Slightly warmer dark bg */
+  --vp-c-bg:             #0d0d0f;
+  --vp-c-bg-soft:        #131316;
+  --vp-c-bg-mute:        #1a1a1f;
+
+  --vp-c-divider:        rgba(255, 255, 255, 0.07);
+
+  /* Code block */
+  --vp-code-block-bg:    #131316;
+}
+
+/* Nav logo font */
+.VPNavBarTitle .title {
+  font-weight: 700;
+  letter-spacing: -.01em;
+}
+
+/* Home hero button */
+.VPButton.brand {
+  background-color: var(--vp-c-brand-1);
+  border-color: var(--vp-c-brand-1);
+}
+.VPButton.brand:hover {
+  background-color: var(--vp-c-brand-2);
+  border-color: var(--vp-c-brand-2);
+}
+
+/* Sidebar active item */
+.VPSidebarItem.is-active > .item .text {
+  color: var(--vp-c-brand-1);
+}
+
+/* Inline code */
+.vp-doc :not(pre) > code {
+  color: var(--vp-c-brand-1);
+  background-color: rgba(255, 70, 138, 0.08);
+  border: 1px solid rgba(255, 70, 138, 0.15);
+}
+
+/* Badge colors */
+.vp-badge.tip {
+  background-color: rgba(255, 70, 138, 0.12);
+  color: #ff468a;
+  border-color: rgba(255, 70, 138, 0.25);
+}
+
+/* Table header */
+.vp-doc table th {
+  background: var(--vp-c-bg-mute);
+}
+
+/* Home features icon */
+.VPFeature .icon {
+  font-size: 2rem;
+}
+
+/* Narrower max width on package pages for readability */
+.VPDoc .container {
+  max-width: 900px;
+}

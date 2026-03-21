@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>disckit — utilities for Discord bots & dashboards</title>
+  <meta name="description" content="A collection of lightweight, zero-dependency utilities for Discord bots and dashboards. TypeScript included. Node.js 18+." />
+  <meta property="og:title" content="disckit" />
+  <meta property="og:description" content="Utilities for Discord bots & dashboards." />
+  <meta property="og:image" content="https://raw.githubusercontent.com/disckit/disckit/main/assets/logo.svg" />
+  <link rel="icon" href="https://raw.githubusercontent.com/disckit/disckit/main/assets/logo.svg" />
+  <style>
+    /* ── Reset & base ─────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0d0d0f;
+      --bg2:      #131316;
+      --bg3:      #1a1a1f;
+      --border:   rgba(255,255,255,0.07);
+      --text:     #e8e8f0;
+      --muted:    rgba(255,255,255,0.4);
+      --dim:      rgba(255,255,255,0.22);
+      --pink:     #ff468a;
+      --pink-dim: rgba(255,70,138,0.12);
+      --cyan:     #22d3ee;
+      --cyan-dim: rgba(34,211,238,0.1);
+      --green:    #4ade80;
+      --yellow:   #fbbf24;
+      --radius:   12px;
+      --sidebar:  260px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    code, pre {
+      font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", ui-monospace, monospace;
+      font-size: 13px;
+    }
+
+    code {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 2px 6px;
+      color: var(--cyan);
+    }
+
+    pre {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      overflow-x: auto;
+      line-height: 1.7;
+    }
+
+    pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      color: var(--text);
+    }
+
+    h1, h2, h3, h4 { color: #fff; font-weight: 600; }
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.4rem; margin-top: 2.5rem; margin-bottom: 1rem; }
+    h3 { font-size: 1.1rem; margin-top: 2rem; margin-bottom: .6rem; color: var(--text); }
+    p  { color: var(--muted); margin-bottom: 1rem; }
+
+    /* ── Layout ───────────────────────────────────────────────────────────── */
+    #app { display: flex; min-height: 100vh; }
+
+    /* ── Sidebar ──────────────────────────────────────────────────────────── */
+    #sidebar {
+      width: var(--sidebar);
+      min-height: 100vh;
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      position: fixed;
+      top: 0; left: 0;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      z-index: 100;
+      transition: transform .25s ease;
+    }
+
+    .sidebar-logo {
+      padding: 24px 20px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+    .sidebar-logo img { width: 28px; height: 28px; }
+    .sidebar-logo-text { font-weight: 700; font-size: 1.05rem; color: #fff; }
+    .sidebar-logo-text span { color: var(--pink); }
+
+    .sidebar-nav { padding: 12px 0; flex: 1; }
+
+    .nav-group-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--dim);
+      padding: 12px 20px 4px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 20px;
+      color: var(--muted);
+      cursor: pointer;
+      border-radius: 0;
+      font-size: 14px;
+      transition: color .15s, background .15s;
+      border-left: 2px solid transparent;
+      user-select: none;
+    }
+    .nav-item:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+    .nav-item.active {
+      color: var(--pink);
+      border-left-color: var(--pink);
+      background: var(--pink-dim);
+    }
+    .nav-item-emoji { font-size: 14px; width: 18px; text-align: center; }
+
+    .sidebar-footer {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 12px;
+    }
+    .sidebar-footer a {
+      font-size: 12px;
+      color: var(--dim);
+    }
+    .sidebar-footer a:hover { color: var(--muted); }
+
+    /* ── Mobile hamburger ─────────────────────────────────────────────────── */
+    #hamburger {
+      display: none;
+      position: fixed;
+      top: 14px; left: 14px;
+      z-index: 200;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      width: 38px; height: 38px;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 4px;
+    }
+    #hamburger span {
+      width: 18px; height: 2px;
+      background: var(--text);
+      border-radius: 2px;
+      transition: all .2s;
+    }
+    #overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.6);
+      z-index: 90;
+    }
+
+    /* ── Content ──────────────────────────────────────────────────────────── */
+    #content {
+      margin-left: var(--sidebar);
+      flex: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Top bar ──────────────────────────────────────────────────────────── */
+    #topbar {
+      position: sticky;
+      top: 0;
+      background: rgba(13,13,15,.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 50;
+    }
+    #topbar-title { font-size: 14px; color: var(--dim); }
+    .topbar-links { display: flex; gap: 16px; }
+    .topbar-links a {
+      font-size: 13px;
+      color: var(--muted);
+      display: flex; align-items: center; gap: 5px;
+    }
+    .topbar-links a:hover { color: var(--text); text-decoration: none; }
+
+    /* ── Page ─────────────────────────────────────────────────────────────── */
+    .page { padding: 40px 48px; max-width: 860px; width: 100%; }
+
+    /* ── Hero ─────────────────────────────────────────────────────────────── */
+    .hero {
+      padding: 64px 0 48px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 48px;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--pink-dim);
+      border: 1px solid rgba(255,70,138,.2);
+      border-radius: 100px;
+      padding: 4px 12px;
+      font-size: 12px;
+      color: var(--pink);
+      margin-bottom: 20px;
+    }
+    .hero h1 { font-size: 2.8rem; margin-bottom: 14px; }
+    .hero h1 span { color: var(--pink); }
+    .hero p { font-size: 1.05rem; color: var(--muted); max-width: 560px; margin-bottom: 28px; }
+
+    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all .15s;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: var(--pink);
+      color: #fff;
+    }
+    .btn-primary:hover { background: #ff2070; text-decoration: none; }
+    .btn-secondary {
+      background: var(--bg3);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.08); text-decoration: none; }
+
+    .hero-install {
+      margin-top: 24px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      max-width: 400px;
+    }
+    .hero-install code {
+      background: none;
+      border: none;
+      padding: 0;
+      color: var(--cyan);
+      font-size: 14px;
+      flex: 1;
+    }
+    .copy-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 10px;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 12px;
+      transition: all .15s;
+    }
+    .copy-btn:hover { background: var(--bg3); color: var(--text); }
+    .copy-btn.copied { color: var(--green); border-color: var(--green); }
+
+    /* ── Package cards ────────────────────────────────────────────────────── */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 14px;
+      margin-top: 20px;
+    }
+
+    .pkg-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      cursor: pointer;
+      transition: border-color .15s, background .15s, transform .15s;
+    }
+    .pkg-card:hover {
+      border-color: rgba(255,70,138,.3);
+      background: var(--bg3);
+      transform: translateY(-2px);
+    }
+    .pkg-card-emoji { font-size: 22px; margin-bottom: 10px; }
+    .pkg-card-name { font-size: 13px; font-weight: 600; color: var(--pink); margin-bottom: 6px; font-family: monospace; }
+    .pkg-card-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+    /* ── Feature strip ────────────────────────────────────────────────────── */
+    .feature-strip {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 24px 0;
+    }
+    .feature-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 5px 12px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .feature-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+
+    /* ── Package page ─────────────────────────────────────────────────────── */
+    .pkg-header {
+      padding: 36px 0 28px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 32px;
+    }
+    .pkg-header-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .pkg-header-emoji { font-size: 28px; }
+    .pkg-name { font-size: 1.5rem; font-family: monospace; color: var(--pink); }
+    .pkg-version {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 3px 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .pkg-desc { font-size: 1rem; color: var(--muted); margin-bottom: 20px; }
+
+    .pkg-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid;
+    }
+    .badge-npm   { background: rgba(203,56,55,.12);  color: #f87171; border-color: rgba(203,56,55,.25); }
+    .badge-ts    { background: rgba(49,120,198,.12); color: #60a5fa; border-color: rgba(49,120,198,.25); }
+    .badge-esm   { background: rgba(251,191,36,.1);  color: #fbbf24; border-color: rgba(251,191,36,.2); }
+    .badge-zero  { background: rgba(74,222,128,.1);  color: #4ade80; border-color: rgba(74,222,128,.2); }
+    .badge-node  { background: rgba(74,222,128,.1);  color: #4ade80; border-color: rgba(74,222,128,.2); }
+
+    /* ── API table ────────────────────────────────────────────────────────── */
+    .api-table { width: 100%; border-collapse: collapse; margin: 12px 0 24px; font-size: 13px; }
+    .api-table th {
+      text-align: left;
+      padding: 8px 14px;
+      background: var(--bg3);
+      color: var(--dim);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      border-bottom: 1px solid var(--border);
+    }
+    .api-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+      vertical-align: top;
+    }
+    .api-table td:first-child { color: var(--cyan); font-family: monospace; white-space: nowrap; }
+    .api-table tr:last-child td { border-bottom: none; }
+    .api-table tr:hover td { background: rgba(255,255,255,.02); }
+    .api-table-wrap {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      overflow-x: auto;
+    }
+
+    /* ── Callout ──────────────────────────────────────────────────────────── */
+    .callout {
+      display: flex;
+      gap: 12px;
+      padding: 14px 18px;
+      border-radius: var(--radius);
+      margin: 16px 0;
+      font-size: 13.5px;
+    }
+    .callout-info  { background: rgba(34,211,238,.07); border: 1px solid rgba(34,211,238,.18); color: var(--cyan); }
+    .callout-warn  { background: rgba(251,191,36,.07); border: 1px solid rgba(251,191,36,.18); color: var(--yellow); }
+    .callout-icon  { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .callout-body  { color: var(--muted); }
+    .callout-body strong { color: var(--text); }
+
+    /* ── Section divider ──────────────────────────────────────────────────── */
+    .section-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 36px 0;
+    }
+
+    /* ── Responsive ───────────────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      #hamburger { display: flex; }
+      #sidebar { transform: translateX(-100%); }
+      #sidebar.open { transform: translateX(0); }
+      #overlay.open { display: block; }
+      #content { margin-left: 0; }
+      .page { padding: 24px 20px; }
+      #topbar { padding: 0 16px 0 60px; }
+      .hero h1 { font-size: 2rem; }
+      .cards-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 480px) {
+      .cards-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- Hamburger -->
+  <button id="hamburger" aria-label="Menu" onclick="toggleSidebar()">
+    <span></span><span></span><span></span>
+  </button>
+  <div id="overlay" onclick="toggleSidebar()"></div>
+
+  <!-- Sidebar -->
+  <nav id="sidebar">
+    <div class="sidebar-logo" onclick="navigate('home')">
+      <img src="https://raw.githubusercontent.com/disckit/disckit/main/assets/logo.svg" alt="disckit" onerror="this.style.display='none'" />
+      <span class="sidebar-logo-text">disc<span>kit</span></span>
+    </div>
+
+    <div class="sidebar-nav">
+      <div class="nav-group-label">Getting Started</div>
+      <div class="nav-item" data-page="home"     onclick="navigate('home')">    <span class="nav-item-emoji">🏠</span> Overview</div>
+      <div class="nav-item" data-page="install"  onclick="navigate('install')"> <span class="nav-item-emoji">📦</span> Installation</div>
+      <div class="nav-item" data-page="scaffold" onclick="navigate('scaffold')"><span class="nav-item-emoji">⚡</span> Quick Start</div>
+
+      <div class="nav-group-label" style="margin-top:8px">Packages</div>
+      <div class="nav-item" data-page="common"       onclick="navigate('common')">      <span class="nav-item-emoji">🛠</span> common</div>
+      <div class="nav-item" data-page="antiflood"    onclick="navigate('antiflood')">   <span class="nav-item-emoji">🛡</span> antiflood</div>
+      <div class="nav-item" data-page="caffeine"     onclick="navigate('caffeine')">    <span class="nav-item-emoji">☕</span> caffeine</div>
+      <div class="nav-item" data-page="cache"        onclick="navigate('cache')">       <span class="nav-item-emoji">💾</span> cache</div>
+      <div class="nav-item" data-page="placeholders" onclick="navigate('placeholders')"><span class="nav-item-emoji">🔤</span> placeholders</div>
+      <div class="nav-item" data-page="paginator"    onclick="navigate('paginator')">   <span class="nav-item-emoji">📄</span> paginator</div>
+      <div class="nav-item" data-page="i18n"         onclick="navigate('i18n')">        <span class="nav-item-emoji">🌍</span> i18n</div>
+      <div class="nav-item" data-page="permissions"  onclick="navigate('permissions')"> <span class="nav-item-emoji">🔐</span> permissions</div>
+      <div class="nav-item" data-page="cooldown"     onclick="navigate('cooldown')">    <span class="nav-item-emoji">⏳</span> cooldown</div>
+    </div>
+
+    <div class="sidebar-footer">
+      <a href="https://github.com/disckit/disckit" target="_blank">GitHub</a>
+      <a href="https://www.npmjs.com/package/disckit" target="_blank">npm</a>
+      <a href="https://discord.gg" target="_blank">Discord</a>
+    </div>
+  </nav>
+
+  <!-- Main content -->
+  <div id="content">
+    <div id="topbar">
+      <span id="topbar-title">disckit docs</span>
+      <div class="topbar-links">
+        <a href="https://github.com/disckit/disckit" target="_blank">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+          GitHub
+        </a>
+        <a href="https://www.npmjs.com/package/disckit" target="_blank">npm</a>
+      </div>
+    </div>
+
+    <div id="page-root"></div>
+  </div>
+</div>
+
+<script>
+// ── Pages ─────────────────────────────────────────────────────────────────────
+
+const PACKAGES = [
+  { id: "common",       emoji: "🛠",  name: "@disckit/common",       version: "2.0.0", desc: "Foundation utilities — string, time, array, async, random, Discord constants." },
+  { id: "antiflood",    emoji: "🛡",  name: "@disckit/antiflood",    version: "2.0.0", desc: "Advanced rate limiter with sliding window, progressive penalty and stats." },
+  { id: "caffeine",     emoji: "☕",  name: "@disckit/caffeine",     version: "2.0.0", desc: "Async cache builder — expireAfterWrite/Access, background refresh, request coalescing." },
+  { id: "cache",        emoji: "💾",  name: "@disckit/cache",        version: "2.0.0", desc: "LRU and TTL cache with O(1) get/set. Zero dependencies." },
+  { id: "placeholders", emoji: "🔤",  name: "@disckit/placeholders", version: "2.0.0", desc: "Placeholder engine — {member:name}, {guild:memberCount} and more." },
+  { id: "paginator",    emoji: "📄",  name: "@disckit/paginator",    version: "2.0.0", desc: "Universal pagination for arrays, REST APIs and Discord buttons/select menus." },
+  { id: "i18n",         emoji: "🌍",  name: "@disckit/i18n",         version: "2.0.0", desc: "i18n with dot-notation, interpolation, pluralization and hot-reload." },
+  { id: "permissions",  emoji: "🔐",  name: "@disckit/permissions",  version: "2.0.0", desc: "Human-readable Discord permission bitfields. No discord.js required." },
+  { id: "cooldown",     emoji: "⏳",  name: "@disckit/cooldown",     version: "2.0.0", desc: "Per-user, per-command cooldown manager with bypass list." },
+];
+
+const PAGES = {
+
+  home: () => `
+    <div class="page">
+      <div class="hero">
+        <div class="hero-badge">⚡ v2.0.0 — Now with ESM support</div>
+        <h1>disc<span style="color:var(--pink)">kit</span></h1>
+        <p>A collection of lightweight, zero-dependency utilities for Discord bots and dashboards. TypeScript included. Node.js 18+.</p>
+        <div class="hero-actions">
+          <button class="btn btn-primary" onclick="navigate('install')">Get Started →</button>
+          <a class="btn btn-secondary" href="https://github.com/disckit/disckit" target="_blank">GitHub ↗</a>
+        </div>
+        <div class="hero-install">
+          <code id="install-cmd">npm install disckit</code>
+          <button class="copy-btn" onclick="copyInstall()">Copy</button>
+        </div>
+      </div>
+
+      <div class="feature-strip">
+        <div class="feature-pill"><span class="dot"></span> Zero dependencies</div>
+        <div class="feature-pill"><span class="dot"></span> TypeScript included</div>
+        <div class="feature-pill"><span class="dot"></span> CJS + ESM</div>
+        <div class="feature-pill"><span class="dot"></span> Node.js 18+</div>
+        <div class="feature-pill"><span class="dot"></span> 9 packages</div>
+      </div>
+
+      <h2>Packages</h2>
+      <div class="cards-grid">
+        ${PACKAGES.map(p => `
+          <div class="pkg-card" onclick="navigate('${p.id}')">
+            <div class="pkg-card-emoji">${p.emoji}</div>
+            <div class="pkg-card-name">${p.name}</div>
+            <div class="pkg-card-desc">${p.desc}</div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `,
+
+  install: () => `
+    <div class="page">
+      <h1>Installation</h1>
+      <p>Install all packages at once with the meta-package, or pick only what you need.</p>
+
+      <h2>Install everything</h2>
+      <pre><code><span style="color:var(--dim)"># npm</span>
+npm install disckit
+
+<span style="color:var(--dim)"># yarn</span>
+yarn add disckit
+
+<span style="color:var(--dim)"># pnpm</span>
+pnpm add disckit</code></pre>
+
+      <h2>Install individually</h2>
+      <pre><code>npm install @disckit/common
+npm install @disckit/cooldown
+npm install @disckit/antiflood
+npm install @disckit/paginator
+npm install @disckit/i18n
+npm install @disckit/permissions
+npm install @disckit/placeholders
+npm install @disckit/cache
+npm install @disckit/caffeine</code></pre>
+
+      <h2>Usage — CommonJS</h2>
+      <pre><code>const { formatTime, isSnowflake } = require('@disckit/common');
+const { CooldownManager } = require('@disckit/cooldown');</code></pre>
+
+      <h2>Usage — ESM</h2>
+      <pre><code>import { formatTime, isSnowflake } from '@disckit/common';
+import { CooldownManager } from '@disckit/cooldown';</code></pre>
+
+      <div class="callout callout-info">
+        <span class="callout-icon">ℹ️</span>
+        <div class="callout-body">All packages ship with <strong>bundled TypeScript types</strong> — no <code>@types/</code> install needed.</div>
+      </div>
+
+      <h2>Requirements</h2>
+      <div class="api-table-wrap">
+        <table class="api-table">
+          <thead><tr><th>Requirement</th><th>Version</th></tr></thead>
+          <tbody>
+            <tr><td>Node.js</td><td>>= 18.0.0</td></tr>
+            <tr><td>npm / yarn / pnpm</td><td>any recent</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `,
+
+  scaffold: () => `
+    <div class="page">
+      <h1>Quick Start</h1>
+      <p>Scaffold a complete Discord bot with <code>@disckit</code> packages pre-configured in seconds.</p>
+
+      <h2>Create a new bot</h2>
+      <pre><code>npx create-disckit-app my-bot
+
+<span style="color:var(--dim)"># or with npm create:</span>
+npm create disckit-app my-bot</code></pre>
+
+      <p>The CLI will ask:</p>
+      <pre><code>  ⚡ create-disckit-app
+
+  Language / Idioma
+  ❯ English
+    Português
+
+  Project name: my-bot
+
+  Language
+  ❯ JavaScript
+    TypeScript
+
+  Module system
+  ❯ CommonJS
+    ESM
+
+  Install dependencies: Yes</code></pre>
+
+      <h2>What gets generated</h2>
+      <pre><code>my-bot/
+  src/
+    index.js      ← client with cooldown + antiflood ready
+    deploy.js     ← register slash commands
+    commands/
+      ping.js     ← /ping — latency and uptime
+      info.js     ← /info — server info
+  .env.example
+  .gitignore
+  package.json
+  README.md</code></pre>
+
+      <h2>Next steps</h2>
+      <pre><code>cd my-bot
+
+<span style="color:var(--dim)"># 1. Fill in your tokens</span>
+cp .env.example .env
+
+<span style="color:var(--dim)"># 2. Register slash commands</span>
+node src/deploy.js
+
+<span style="color:var(--dim)"># 3. Start the bot</span>
+npm start</code></pre>
+
+      <div class="callout callout-info">
+        <span class="callout-icon">⚡</span>
+        <div class="callout-body"><strong>Dev mode</strong> — <code>npm run dev</code> uses <code>node --watch</code> to auto-restart on file changes.</div>
+      </div>
+    </div>
+  `,
+
+  common: () => `
+    <div class="page">
+      <div class="pkg-header">
+        <div class="pkg-header-top">
+          <span class="pkg-header-emoji">🛠</span>
+          <span class="pkg-name">@disckit/common</span>
+          <span class="pkg-version">v2.0.0</span>
+        </div>
+        <p class="pkg-desc">Foundation utilities for Discord bots and dashboards.</p>
+        <div class="pkg-badges">
+          <span class="badge badge-npm">npm</span>
+          <span class="badge badge-ts">TypeScript</span>
+          <span class="badge badge-esm">ESM + CJS</span>
+          <span class="badge badge-zero">Zero deps</span>
+          <span class="badge badge-node">Node 18+</span>
+        </div>
+      </div>
+
+      <pre><code>npm install @disckit/common</code></pre>
+
+      <h2>StringUtils</h2>
+      <pre><code>const { StringUtils, isSnowflake, mentionUser } = require('@disckit/common');
+
+StringUtils.isSnowflake('123456789012345678');   // → true
+StringUtils.mentionUser('123456789012345678');   // → "<@123456789012345678>"
+StringUtils.mentionRole('987654321098765432');   // → "<@&987654321098765432>"
+StringUtils.mentionChannel('111222333444555');   // → "<#111222333444555>"
+StringUtils.containsLink('visit https://x.com');// → true
+StringUtils.isHexColor('#5865F2');               // → true
+StringUtils.truncate('Hello World', 8);          // → "Hello..."
+StringUtils.escapeMarkdown('**bold**');          // → "\\*\\*bold\\*\\*"
+StringUtils.codeBlock('const x = 1', 'js');     // → "\`\`\`js\\nconst x = 1\\n\`\`\`"</code></pre>
+
+      <h2>TimeUtils</h2>
+      <pre><code>const { TimeUtils, toDiscordTimestamp } = require('@disckit/common');
+
+TimeUtils.formatTime(3661);         // → "1 hora, 1 minuto, 1 segundo"
+TimeUtils.formatTimeShort(3661);    // → "1h 1m 1s"
+TimeUtils.formatUptime(3_600_000); // → "1 hora"
+
+// Discord timestamp tags — renders natively in Discord
+toDiscordTimestamp(new Date(), 'R'); // → "<t:1711234567:R>"  (e.g. "3 minutes ago")
+toDiscordTimestamp(new Date(), 'D'); // → "<t:1711234567:D>"  (e.g. "March 21, 2026")
+toDiscordTimestamp(member.joinedAt, 'F'); // full date + time</code></pre>
+
+      <h3>Timestamp formats</h3>
+      <div class="api-table-wrap">
+        <table class="api-table">
+          <thead><tr><th>Format</th><th>Output example</th></tr></thead>
+          <tbody>
+            <tr><td>t</td><td>9:41 PM</td></tr>
+            <tr><td>T</td><td>9:41:30 PM</td></tr>
+            <tr><td>d</td><td>11/28/2018</td></tr>
+            <tr><td>D</td><td>November 28, 2018</td></tr>
+            <tr><td>f</td><td>November 28, 2018 9:41 PM</td></tr>
+            <tr><td>F</td><td>Wednesday, November 28, 2018 9:41 PM</td></tr>
+            <tr><td>R</td><td>3 years ago</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>DISCORD constants</h2>
+      <pre><code>const { DISCORD, TIME } = require('@disckit/common');
+
+DISCORD.MAX_MESSAGE_LENGTH;      // 2000
+DISCORD.MAX_EMBED_FIELDS;        // 25
+DISCORD.MAX_SELECT_OPTIONS;      // 25
+DISCORD.MAX_MODAL_COMPONENTS;    // 5
+DISCORD.MAX_MEDIA_GALLERY_ITEMS; // 10
+DISCORD.EPOCH;                   // 1420070400000n (BigInt)
+
+TIME.SECOND;  // 1000
+TIME.MINUTE;  // 60000
+TIME.HOUR;    // 3600000
+TIME.DAY;     // 86400000</code></pre>
+    </div>
+  `,
+
+  antiflood: () => `
+    <div class="page">
+      <div class="pkg-header">
+        <div class="pkg-header-top">
+          <span class="pkg-header-emoji">🛡</span>
+          <span class="pkg-name">@disckit/antiflood</span>
+          <span class="pkg-version">v2.0.0</span>
+        </div>
+        <p class="pkg-desc">Advanced rate limiter with sliding window, progressive penalty and role whitelist.</p>
+        <div class="pkg-badges">
+          <span class="badge badge-npm">npm</span>
+          <span class="badge badge-ts">TypeScript</span>
+          <span class="badge badge-esm">ESM + CJS</span>
+          <span class="badge badge-zero">Zero deps</span>
+        </div>
+      </div>
+
+      <pre><code>npm install @disckit/antiflood</code></pre>
+
+      <h2>Basic setup</h2>
+      <pre><code>const { AntifloodManager, isBlocked, formatRetryAfter } = require('@disckit/antiflood');
+
+const antiflood = new AntifloodManager({
+  globalRule: { windowMs: 5000, maxHits: 3, penaltyMode: 'NONE' },
+  whitelistRoleIds: ['OWNER_ROLE_ID'],
+});
+
+// In interactionCreate:
+const check = antiflood.check({
+  userId:        interaction.user.id,
+  guildId:       interaction.guildId,
+  commandName:   interaction.commandName,
+  memberRoleIds: interaction.member.roles.cache.map(r => r.id),
+});
+
+if (isBlocked(check)) {
+  return interaction.reply({
+    content: \`⛔ Wait \${formatRetryAfter(check.retryAfterMs)}.\`,
+    ephemeral: true,
+  });
+}</code></pre>
+
+      <h2>Per-command rules</h2>
+      <pre><code>antiflood.setRule('gamble', {
+  windowMs:    10_000,
+  maxHits:     1,
+  penaltyMode: 'ADDITIVE',
+  penaltyStep: 15_000,
+  maxPenalty:  120_000,
+});</code></pre>
+
+      <h2>Stats monitoring</h2>
+      <pre><code>const s = antiflood.stats();
+// { hits: 1240, blocked: 37, whitelisted: 5, ratio: 0.03 }
+
+antiflood.resetStats();</code></pre>
+
+      <h2>RuleConfig options</h2>
+      <div class="api-table-wrap">
+        <table class="api-table">
+          <thead><tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>windowMs</td><td>number</td><td>5000</td><td>Sliding window size in ms</td></tr>
+            <tr><td>maxHits</td><td>number</td><td>3</td><td>Allowed hits per window</td></tr>
+            <tr><td>penaltyMode</td><td>NONE | ADDITIVE | EXPONENTIAL</td><td>ADDITIVE</td><td>How penalties grow</td></tr>
+            <tr><td>penaltyStep</td><td>number</td><td>5000</td><td>Ms added per excess hit</td></tr>
+            <tr><td>maxPenalty</td><td>number</td><td>60000</td><td>Hard cap on penalty</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `,
+
+  cooldown: () => `
+    <div class="page">
+      <div class="pkg-header">
+        <div class="pkg-header-top">
+          <span class="pkg-header-emoji">⏳</span>
+          <span class="pkg-name">@disckit/cooldown</span>
+          <span class="pkg-version">v2.0.0</span>
+        </div>
+        <p class="pkg-desc">Per-user, per-command cooldown manager with bypass list and duration overrides.</p>
+        <div class="pkg-badges">
+          <span class="badge badge-npm">npm</span>
+          <span class="badge badge-ts">TypeScript</span>
+          <span class="badge badge-esm">ESM + CJS</span>
+          <span class="badge badge-zero">Zero deps</span>
+        </div>
+      </div>
+
+      <pre><code>npm install @disckit/cooldown</code></pre>
+
+      <h2>Basic usage</h2>
+      <pre><code>const { CooldownManager } = require('@disckit/cooldown');
+
+const cooldowns = new CooldownManager({
+  default: 3000,
+  bypass:  ['OWNER_ID'],
+  sweepEveryMs: 60_000,
+});
+
+const result = cooldowns.check('ping', interaction.user.id);
+
+if (!result.ok) {
+  return interaction.reply({
+    content: \`⏳ Wait \${result.remainingText}.\`,
+    ephemeral: true,
+  });
+}</code></pre>
+
+      <h2>API</h2>
+      <div class="api-table-wrap">
+        <table class="api-table">
+          <thead><tr><th>Method</th><th>Returns</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>check(cmd, key, opts?)</td><td>CooldownResult</td><td>Check and apply cooldown</td></tr>
+            <tr><td>consume(cmd, key, opts?)</td><td>void</td><td>Apply without returning result</td></tr>
+            <tr><td>peek(cmd, key)</td><td>CooldownResult</td><td>Check without applying</td></tr>
+            <tr><td>reset(cmd, key)</td><td>void</td><td>Clear one user's cooldown</td></tr>
+            <tr><td>resetCommand(cmd)</td><td>void</td><td>Clear all users for a command</td></tr>
+            <tr><td>addBypass(id)</td><td>this</td><td>Add ID to bypass list</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `,
+
+  paginator: () => `
+    <div class="page">
+      <div class="pkg-header">
+        <div class="pkg-header-top">
+          <span class="pkg-header-emoji">📄</span>
+          <span class="pkg-name">@disckit/paginator</span>
+          <span class="pkg-version">v2.0.0</span>
+        </div>
+        <p class="pkg-desc">Universal pagination for arrays, REST APIs and Discord button/select navigation.</p>
+        <div class="pkg-badges">
+          <span class="badge badge-npm">npm</span>
+          <span class="badge badge-ts">TypeScript</span>
+          <span class="badge badge-esm">ESM + CJS</span>
+          <span class="badge badge-zero">Zero deps</span>
+        </div>
+      </div>
+
+      <pre><code>npm install @disckit/paginator</code></pre>
+
+      <h2>paginate() — slice an array</h2>
+      <pre><code>const { paginate } = require('@disckit/paginator');
+
+const result = paginate(users, { page: 2, limit: 10 });
+result.items;      // users 11–20
+result.totalPages; // Math.ceil(users.length / 10)
+result.hasPrev;    // true
+result.isEmpty;    // false</code></pre>
+
+      <h2>Paginator — Discord buttons</h2>
+      <pre><code>const { Paginator } = require('@disckit/paginator');
+
+const pager = new Paginator({ total: items.length, limit: 10 });
+
+// Button state
+const { prev, next, label } = pager.buttons();
+// → { prev: { disabled: false, label: "◀" }, next: {...}, label: "Page 1 / 5" }
+
+// Navigate
+pager.next(); pager.prev(); pager.goTo(3);
+
+// isEmpty detection
+if (pager.isEmpty) return interaction.reply('No results found.');</code></pre>
+
+      <h2>Paginator — Discord select menu</h2>
+      <pre><code>const menu = pager.selectMenu({ customId: 'pages', labelPrefix: 'Page' });
+// menu.options → [{ label: 'Page 1', value: '1', default: true }, ...]
+
+collector.on('collect', i => {
+  pager.goTo(Number(i.values[0]));
+  i.update(buildMessage());
+});</code></pre>
+    </div>
+  `,
+
+  i18n: () => `
+    <div class="page">
+      <div class="pkg-header">
+        <div class="pkg-header-top">
+          <span class="pkg-header-emoji">🌍</span>
+          <span class="pkg-name">@disckit/i18n</span>
+          <span class="pkg-version">v2.0.0</span>
+        </div>
+        <p class="pkg-desc">Lightweight i18n with dot-notation, interpolation, pluralization and hot-reload.</p>
+        <div class="pkg-badges">
+          <span class="badge badge-npm">npm</span>
+          <span class="badge badge-ts">TypeScript</span>
+          <span class="badge badge-esm">ESM + CJS</span>
+          <span class="badge badge-zero">Zero deps</span>
+        </div>
+      </div>
+
+      <pre><code>npm install @disckit/i18n</code></pre>
+
+      <h2>Basic setup</h2>
+      <pre><code>const { I18n, createT } = require('@disckit/i18n');
+
+const i18n = new I18n({ fallback: 'en' });
+
+i18n.load('en', {
+  greet: 'Hello, {{name}}!',
+  commands: { ping: { reply: 'Pong! Latency: {{ms}}ms' } },
+  items: { zero: 'No items', one: '{{n}} item', other: '{{n}} items' },
+});
+
+i18n.load('pt', { greet: 'Olá, {{name}}!' });
+
+i18n.t('greet', 'pt', { name: 'Mundo' }); // → "Olá, Mundo!"
+i18n.t('commands.ping.reply', 'pt', { ms: 42 }); // → fallback to en
+i18n.t('items', 'en', { n: 5 }); // → "5 items"</code></pre>
+
+      <h2>Hot-reload</h2>
+      <pre><code>const fresh = JSON.parse(fs.readFileSync('./locales/pt.json', 'utf8'));
+i18n.reload('pt', fresh); // fully replaces locale — no restart needed</code></pre>
+
+      <h2>Pre-bound translator</h2>
+      <pre><code>const t = createT(i18n, 'pt');
+t('greet', { name: 'Mundo' }); // → "Olá, Mundo!"</code></pre>
+    </div>
+  `,
+
+  permissions: () => `
+    <div class="page">
+      <div class="pkg-header">
+        <div class="pkg-header-top">
+          <span class="pkg-header-emoji">🔐</span>
+          <span class="pkg-name">@disckit/permissions</span>
+          <span class="pkg-version">v2.0.0</span>
+        </div>
+        <p class="pkg-desc">Human-readable Discord permission bitfields. No discord.js required.</p>
+        <div class="pkg-badges">
+          <span class="badge badge-npm">npm</span>
+          <span class="badge badge-ts">TypeScript</span>
+          <span class="badge badge-esm">ESM + CJS</span>
+          <span class="badge badge-zero">Zero deps</span>
+        </div>
+      </div>
+
+      <pre><code>npm install @disckit/permissions</code></pre>
+
+      <h2>Usage</h2>
+      <pre><code>const { Permissions } = require('@disckit/permissions');
+
+const perms = new Permissions(['KICK_MEMBERS', 'BAN_MEMBERS', 'MANAGE_MESSAGES']);
+
+perms.has('KICK_MEMBERS');                   // → true
+perms.any(['KICK_MEMBERS', 'ADMINISTRATOR']); // → true
+perms.missing(['KICK_MEMBERS', 'MANAGE_ROLES']); // → ['MANAGE_ROLES']
+
+// Immutable operations
+const withEmbeds = perms.add('EMBED_LINKS');
+const reduced    = withEmbeds.remove('SEND_MESSAGES');
+reduced.toArray(); // → ['KICK_MEMBERS', 'BAN_MEMBERS', ...]</code></pre>
+
+      <h2>diff() — audit role changes</h2>
+      <pre><code>const before = new Permissions(['SEND_MESSAGES']);
+const after  = new Permissions(['SEND_MESSAGES', 'MANAGE_MESSAGES']);
+
+after.diff(before);
+// → { added: ['MANAGE_MESSAGES'], removed: [] }</code></pre>
+
+      <h2>Dashboard usage (no discord.js)</h2>
+      <pre><code>const raw = req.body.permissions; // bigint string from Discord API
+const perms = new Permissions(BigInt(raw));
+if (!perms.has('MANAGE_GUILD')) return res.status(403).json({ error: 'Missing MANAGE_GUILD' });</code></pre>
+    </div>
+  `,
+
+  placeholders: () => `
+    <div class="page">
+      <div class="pkg-header">
+        <div class="pkg-header-top">
+          <span class="pkg-header-emoji">🔤</span>
+          <span class="pkg-name">@disckit/placeholders</span>
+          <span class="pkg-version">v2.0.0</span>
+        </div>
+        <p class="pkg-desc">Placeholder engine for Discord bots. No discord.js dependency.</p>
+        <div class="pkg-badges">
+          <span class="badge badge-npm">npm</span>
+          <span class="badge badge-ts">TypeScript</span>
+          <span class="badge badge-esm">ESM + CJS</span>
+          <span class="badge badge-zero">Zero deps</span>
+        </div>
+      </div>
+
+      <pre><code>npm install @disckit/placeholders</code></pre>
+
+      <h2>Apply placeholders</h2>
+      <pre><code>const { applyPlaceholders } = require('@disckit/placeholders');
+
+const ctx = {
+  guild:  { name: 'My Server', id: '123', memberCount: 1500 },
+  member: { id: '456', name: 'john', mention: '<@456>' },
+};
+
+applyPlaceholders('Welcome {member:mention} to {server}!', ctx);
+// → "Welcome <@456> to My Server!"</code></pre>
+
+      <h2>Available tokens</h2>
+      <div class="api-table-wrap">
+        <table class="api-table">
+          <thead><tr><th>Token</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>{server} / {guild:name}</td><td>Server name</td></tr>
+            <tr><td>{count} / {guild:memberCount}</td><td>Member count</td></tr>
+            <tr><td>{member:name}</td><td>Username</td></tr>
+            <tr><td>{member:mention}</td><td>Clickable mention</td></tr>
+            <tr><td>{member:nick}</td><td>Display name</td></tr>
+            <tr><td>{inviter:name}</td><td>Who invited them</td></tr>
+            <tr><td>{level} / {xp} / {rank}</td><td>Bot-specific values</td></tr>
+            <tr><td>{servers} / {members}</td><td>Bot presence only</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `,
+
+  cache: () => `
+    <div class="page">
+      <div class="pkg-header">
+        <div class="pkg-header-top">
+          <span class="pkg-header-emoji">💾</span>
+          <span class="pkg-name">@disckit/cache</span>
+          <span class="pkg-version">v2.0.0</span>
+        </div>
+        <p class="pkg-desc">LRU and TTL cache with O(1) get/set. Doubly-linked-list + Map implementation.</p>
+        <div class="pkg-badges">
+          <span class="badge badge-npm">npm</span>
+          <span class="badge badge-ts">TypeScript</span>
+          <span class="badge badge-esm">ESM + CJS</span>
+          <span class="badge badge-zero">Zero deps</span>
+        </div>
+      </div>
+
+      <pre><code>npm install @disckit/cache</code></pre>
+
+      <h2>LRUCache</h2>
+      <pre><code>const { LRUCache } = require('@disckit/cache');
+
+const cache = new LRUCache(500);
+cache.set('guild:123', config);
+cache.get('guild:123');  // promotes to MRU
+cache.peek('guild:123'); // no recency update
+cache.size;              // current count</code></pre>
+
+      <h2>TTLCache — with expiration</h2>
+      <pre><code>const { TTLCache } = require('@disckit/cache');
+
+const cache = new TTLCache(200, 5 * 60 * 1000); // 5min default TTL
+
+cache.set('user:456', data);
+cache.set('temp', data, 30_000); // 30s override
+cache.purgeExpired();             // proactive eviction</code></pre>
+
+      <div class="callout callout-info">
+        <span class="callout-icon">☕</span>
+        <div class="callout-body">For async loading with background refresh, see <strong>@disckit/caffeine</strong>.</div>
+      </div>
+    </div>
+  `,
+
+  caffeine: () => `
+    <div class="page">
+      <div class="pkg-header">
+        <div class="pkg-header-top">
+          <span class="pkg-header-emoji">☕</span>
+          <span class="pkg-name">@disckit/caffeine</span>
+          <span class="pkg-version">v2.0.0</span>
+        </div>
+        <p class="pkg-desc">Caffeine-inspired async cache builder. Background refresh, request coalescing, stats.</p>
+        <div class="pkg-badges">
+          <span class="badge badge-npm">npm</span>
+          <span class="badge badge-ts">TypeScript</span>
+          <span class="badge badge-esm">ESM + CJS</span>
+          <span class="badge badge-zero">Zero deps</span>
+        </div>
+      </div>
+
+      <pre><code>npm install @disckit/caffeine</code></pre>
+
+      <h2>Guild settings cache</h2>
+      <pre><code>const { CacheBuilder } = require('@disckit/caffeine');
+
+const guildCache = CacheBuilder.newBuilder()
+  .maximumSize(500)
+  .expireAfterAccess(30 * 60 * 1000) // evict after 30min idle
+  .refreshAfterWrite(5 * 60 * 1000)  // background refresh every 5min
+  .onEviction((key, value, reason) => console.log(key, reason))
+  .buildAsync(async (guildId) => {
+    let doc = await Guild.findById(guildId);
+    if (!doc) doc = await new Guild({ _id: guildId }).save();
+    return doc;
+  });
+
+// Usage in commands — auto-loads if missing
+const settings = await guildCache.get(interaction.guildId);
+
+// After a dashboard save
+guildCache.invalidate(guildId);</code></pre>
+
+      <h2>Stats</h2>
+      <pre><code>guildCache.stats;
+// { hits, misses, loads, errors, evictions, refreshes, size, inflight }</code></pre>
+
+      <h2>Builder options</h2>
+      <div class="api-table-wrap">
+        <table class="api-table">
+          <thead><tr><th>Method</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>.maximumSize(n)</td><td>Max entries before LRU eviction</td></tr>
+            <tr><td>.expireAfterWrite(ms)</td><td>Expire N ms after last write</td></tr>
+            <tr><td>.expireAfterAccess(ms)</td><td>Expire N ms after last read (idle)</td></tr>
+            <tr><td>.refreshAfterWrite(ms)</td><td>Background refresh — returns stale while reloading</td></tr>
+            <tr><td>.onEviction(fn)</td><td>(key, value, reason) callback</td></tr>
+            <tr><td>.buildAsync(loader)</td><td>Build with bound async loader</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `,
+};
+
+// ── Router ────────────────────────────────────────────────────────────────────
+
+function navigate(page) {
+  if (!PAGES[page]) page = 'home';
+
+  // Update active nav
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.page === page);
+  });
+
+  // Render page
+  document.getElementById('page-root').innerHTML = PAGES[page]();
+
+  // Update topbar title
+  const titles = {
+    home: 'disckit docs', install: 'Installation', scaffold: 'Quick Start',
+    common: '@disckit/common', antiflood: '@disckit/antiflood',
+    cooldown: '@disckit/cooldown', paginator: '@disckit/paginator',
+    i18n: '@disckit/i18n', permissions: '@disckit/permissions',
+    placeholders: '@disckit/placeholders', cache: '@disckit/cache',
+    caffeine: '@disckit/caffeine',
+  };
+  document.getElementById('topbar-title').textContent = titles[page] || 'disckit docs';
+  document.title = (titles[page] || 'disckit') + ' — disckit docs';
+
+  // Update URL
+  history.pushState({ page }, '', page === 'home' ? '/' : '/' + page);
+
+  // Close mobile sidebar
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+
+  // Scroll to top
+  document.getElementById('page-root').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function copyInstall() {
+  navigator.clipboard.writeText('npm install disckit').then(() => {
+    const btn = document.querySelector('.copy-btn');
+    if (!btn) return;
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('open');
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+
+window.addEventListener('popstate', (e) => {
+  navigate(e.state?.page || 'home');
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+  const path = location.pathname.replace('/', '') || 'home';
+  navigate(PAGES[path] ? path : 'home');
+});
+</script>
+
+</body>
+</html>
