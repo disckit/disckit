@@ -1,0 +1,159 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test (Node ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20, 22]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-pnpm-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run all tests
+        run: |
+          for pkg in common antiflood cache caffeine cooldown i18n paginator permissions placeholders; do
+            echo "::group::$pkg"
+            node --test $pkg/tests/run.js
+            echo "::endgroup::"
+          done
+
+  lint:
+    name: Lint & Format
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Biome check
+        run: npx @biomejs/biome check ./*/src
+
+  esm:
+    name: ESM + Export validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Validate ESM exports and named exports
+        run: |
+          # Expected named exports per package — update here when API changes
+          declare -A EXPECTED_EXPORTS
+          EXPECTED_EXPORTS["common"]="formatTime sleep chunk randomInt containsLink isHexColor"
+          EXPECTED_EXPORTS["antiflood"]="AntifloodManager AntifloodRule isBlocked formatRetryAfter"
+          EXPECTED_EXPORTS["cache"]="LRUCache TTLCache createCache"
+          EXPECTED_EXPORTS["caffeine"]="CacheBuilder CaffeineCache"
+          EXPECTED_EXPORTS["cooldown"]="CooldownManager"
+          EXPECTED_EXPORTS["i18n"]="I18n createT"
+          EXPECTED_EXPORTS["paginator"]="Paginator paginate fromQuery"
+          EXPECTED_EXPORTS["permissions"]="Permissions PermissionsBits"
+          EXPECTED_EXPORTS["placeholders"]="applyPlaceholders createContext PlaceholderEngine"
+
+          FAILED=0
+
+          for pkg in common antiflood cache caffeine cooldown i18n paginator permissions placeholders; do
+            echo "── $pkg ──"
+
+            # 1. CJS load check
+            node -e "
+              const mod = require('./$pkg/src/index.js');
+              if (!mod || typeof mod !== 'object') throw new Error('$pkg: CJS export is not an object');
+              console.log('  ✓ CJS loads');
+            " || { echo "  ✗ CJS load failed"; FAILED=1; continue; }
+
+            # 2. Named exports check
+            NAMES="${EXPECTED_EXPORTS[$pkg]}"
+            node -e "
+              const mod = require('./$pkg/src/index.js');
+              const names = '${NAMES}'.split(' ').filter(Boolean);
+              const missing = names.filter(n => !(n in mod));
+              if (missing.length > 0) {
+                console.error('  ✗ Missing exports:', missing.join(', '));
+                process.exit(1);
+              }
+              console.log('  ✓ Named exports:', names.join(', '));
+            " || { FAILED=1; continue; }
+
+            # 3. ESM load check
+            node --input-type=module << ESMEOF
+              import mod from './$pkg/esm/index.js';
+              if (!mod || typeof mod !== 'object') throw new Error('$pkg: ESM default export is not an object');
+              console.log('  ✓ ESM loads');
+ESMEOF
+            [ $? -ne 0 ] && { echo "  ✗ ESM load failed"; FAILED=1; }
+
+          done
+
+          exit $FAILED
+
+  integration:
+    name: Meta-package integration
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Run disckit integration tests
+        run: node --test disckit/tests/run.js

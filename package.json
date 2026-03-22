@@ -1,0 +1,29 @@
+{
+  "name": "disckit-monorepo",
+  "private": true,
+  "description": "disckit monorepo — utilities for Discord bots and dashboards",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "scripts": {
+    "build":      "turbo run build",
+    "test":       "turbo run test",
+    "lint":       "biome lint ./*/src",
+    "lint:fix":   "biome lint --write ./*/src",
+    "format":     "biome format --write ./*/src",
+    "check":      "biome check ./*/src",
+    "check:fix":  "biome check --write ./*/src",
+    "clean":      "turbo run clean",
+    "test:all":   "for d in common antiflood cache caffeine cooldown i18n paginator permissions placeholders; do echo \"--- $d ---\" && node --test $d/tests/run.js; done"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.0",
+    "turbo": "^2.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/disckit/disckit.git"
+  },
+  "license": "MIT"
+}

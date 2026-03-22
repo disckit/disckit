@@ -1,0 +1,11 @@
+packages:
+  - "common"
+  - "antiflood"
+  - "cache"
+  - "caffeine"
+  - "cooldown"
+  - "i18n"
+  - "paginator"
+  - "permissions"
+  - "placeholders"
+  - "disckit"
