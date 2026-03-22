@@ -1,13 +1,10 @@
 /**
- * PlaceholderEngine — Core placeholder substitution engine for Enerthya.
- *
- * Inspired by Loritta's `loritta-placeholders` module.
- * Adapted for Node.js / JavaScript.
+ * PlaceholderEngine — Core placeholder substitution engine for Discord bots and dashboards.
  *
  * Key design decisions:
  *   - Zero Discord.js dependency — works with plain context objects.
  *   - Unknown/invalid placeholders are left as-is (never throws, never removes).
- *   - The bot adapts its Discord.js objects to PlaceholderContext before calling this.
+ *   - Adapt Discord.js objects to PlaceholderContext before calling this.
  *   - The dashboard can call this directly with data from API responses (preview mode).
  */
 
@@ -174,85 +171,8 @@ function buildPreviewContext(flat = {}) {
   };
 }
 
-/**
- * Apply eventlog placeholders to a string.
- *
- * @param {string} content
- * @param {{
- *   user?: { id?: string, name?: string, mention?: string, avatar?: string },
- *   channel?: { id?: string, mention?: string },
- *   guild?: { name?: string, memberCount?: number },
- *   action?: string,
- *   before?: string,
- *   after?: string,
- *   reason?: string,
- *   moderator?: string,
- *   accountAge?: string,
- * }} ctx
- * @returns {string}
- */
-function applyEventlogPlaceholders(content, ctx = {}) {
-  if (typeof content !== "string") return "";
-  let r = content;
-
-  const u = ctx.user ?? {};
-  const c = ctx.channel ?? {};
-  const g = ctx.guild ?? {};
-
-  r = replace(r, "{user}",              u.name      ?? "");
-  r = replace(r, "{user:mention}",      u.mention   ?? "");
-  r = replace(r, "{user:id}",           u.id        ?? "");
-  r = replace(r, "{user:avatar}",       u.avatar    ?? "");
-  r = replace(r, "{channel}",           c.mention   ?? "");
-  r = replace(r, "{channel:id}",        c.id        ?? "");
-  r = replace(r, "{guild:name}",        g.name      ?? "");
-  r = replace(r, "{guild:memberCount}", g.memberCount ?? "");
-  r = replace(r, "{action}",            ctx.action  ?? "");
-  r = replace(r, "{before}",            ctx.before  ?? "");
-  r = replace(r, "{after}",             ctx.after   ?? "");
-  r = replace(r, "{reason}",            ctx.reason  ?? "");
-  r = replace(r, "{moderator}",         ctx.moderator ?? "");
-  r = replace(r, "{account:age}",       ctx.accountAge ?? "");
-
-  return r;
-}
-
-/**
- * Apply forms DM confirmation placeholders.
- * @param {string} content
- * @param {{ formName?: string, formId?: number, userName?: string, userMention?: string }} ctx
- * @returns {string}
- */
-function applyFormPlaceholders(content, ctx = {}) {
-  if (typeof content !== "string") return "";
-  let r = content;
-  r = replace(r, "{form:name}",   ctx.formName    ?? "");
-  r = replace(r, "{form:id}",     ctx.formId      ?? "");
-  r = replace(r, "{user}",        ctx.userName    ?? "");
-  r = replace(r, "{user:mention}", ctx.userMention ?? "");
-  return r;
-}
-
-/**
- * Apply counter channel name placeholders.
- * @param {string} content
- * @param {{ all?: number, members?: number, bots?: number }} ctx
- * @returns {string}
- */
-function applyCounterPlaceholders(content, ctx = {}) {
-  if (typeof content !== "string") return "";
-  let r = content;
-  r = replace(r, "{all}",     ctx.all     ?? "");
-  r = replace(r, "{members}", ctx.members ?? "");
-  r = replace(r, "{bots}",    ctx.bots    ?? "");
-  return r;
-}
-
 module.exports = {
   applyPlaceholders,
-  applyEventlogPlaceholders,
-  applyFormPlaceholders,
-  applyCounterPlaceholders,
   detectPlaceholders,
   hasPlaceholders,
   buildPreviewContext,

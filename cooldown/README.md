@@ -1,7 +1,7 @@
 <div align="center">
   <br />
   <p>
-    <a href="https://github.com/disckit/disckit">
+    <a href="https://disckit.vercel.app">
       <img src="https://raw.githubusercontent.com/disckit/disckit/main/assets/logo.svg" width="480" alt="disckit" />
     </a>
   </p>
@@ -14,7 +14,7 @@
     <a href="https://nodejs.org"><img src="https://img.shields.io/badge/node-%3E%3D18-339933?style=flat-square&logo=node.js&logoColor=white" alt="Node.js" /></a>
   </p>
   <h3>@disckit/cooldown</h3>
-  <p>Per-user, per-guild, per-command cooldown manager. Bypass lists and duration overrides included.</p>
+  <p>Per-user, per-guild, per-command cooldown manager. Bypass lists, duration overrides and multi-command checks included.</p>
 </div>
 
 ---
@@ -22,8 +22,9 @@
 ## Features
 
 - One `CooldownManager` instance handles **all commands** — keyed by `command:userId`
-- **Bypass list** — owners and mods can skip cooldowns entirely
+- **Bypass list** — owners and mods skip cooldowns entirely
 - **Per-check duration override** — different cooldowns per command in the same manager
+- **`checkMany()`** — check multiple commands at once for the same key
 - **`consume()`** — fire-and-forget for simple cases (no result needed)
 - **`peek()`** — check state without starting a cooldown
 - **Auto-sweep** — optional interval to clean expired entries
@@ -37,19 +38,6 @@ yarn add @disckit/cooldown
 pnpm add @disckit/cooldown
 ```
 
-## TypeScript / ESM
-
-Types are **bundled** — no extra install needed.  
-Supports both **CommonJS** and **ESM**:
-
-```ts
-// ESM
-import { CooldownManager } from '@disckit/cooldown';
-
-// CommonJS
-const { CooldownManager } = require('@disckit/cooldown');
-```
-
 ## Usage
 
 ### Basic command cooldown
@@ -58,9 +46,9 @@ const { CooldownManager } = require('@disckit/cooldown');
 const { CooldownManager } = require('@disckit/cooldown');
 
 const cooldowns = new CooldownManager({
-  default: 3000,         // 3s default for all commands
-  bypass:  ['OWNER_ID'], // these users skip cooldowns
-  sweepEveryMs: 60_000,  // clean up expired entries every minute
+  default:      3000,         // 3s default for all commands
+  bypass:       ['OWNER_ID'], // these users skip cooldowns
+  sweepEveryMs: 60_000,       // clean up expired entries every minute
 });
 
 // In your interactionCreate handler:
@@ -72,28 +60,32 @@ if (!result.ok) {
     ephemeral: true,
   });
 }
-
-// execute command...
 ```
 
 ### Per-command duration overrides
 
 ```js
-// Use a different duration just for /ban (same manager instance)
+// Different duration just for /ban — same manager instance
 const result = cooldowns.check('ban', userId, { duration: 10_000 }); // 10s
 
-// Or fire-and-forget for simple scenarios
+// Fire-and-forget for daily reward
 cooldowns.consume('daily', userId, { duration: 86_400_000 }); // 24h
+```
+
+### Check multiple commands at once
+
+```js
+// Returns the first active cooldown found, without applying anything
+const result = cooldowns.checkMany(['ban', 'kick', 'mute'], userId);
+if (!result.ok) {
+  reply(`⏳ Wait ${result.remainingText} before using \`/${result.command}\` again.`);
+}
 ```
 
 ### Bypass list management
 
 ```js
-// Add at startup
-const cooldowns = new CooldownManager({ bypass: ['OWNER_ID', 'CO_OWNER_ID'] });
-
-// Add/remove at runtime
-cooldowns.addBypass('NEW_MOD_ID');
+cooldowns.addBypass('MOD_ID');
 cooldowns.removeBypass('EX_MOD_ID');
 cooldowns.isBypassed('OWNER_ID'); // → true
 ```
@@ -101,7 +93,6 @@ cooldowns.isBypassed('OWNER_ID'); // → true
 ### Peek without applying
 
 ```js
-// Check if user is on cooldown WITHOUT starting one
 const state = cooldowns.peek('ping', userId);
 if (!state.ok) {
   console.log(`User still has ${state.remainingText} left`);
@@ -111,11 +102,10 @@ if (!state.ok) {
 ### Reset controls
 
 ```js
-cooldowns.reset('ping', userId);       // reset one user for one command
-cooldowns.resetCommand('ping');        // reset all users for one command
-cooldowns.resetAll();                  // nuclear option — clear everything
+cooldowns.reset('ping', userId);    // reset one user for one command
+cooldowns.resetCommand('ping');     // reset all users for one command
+cooldowns.resetAll();               // clear everything
 
-// Stats
 cooldowns.stats(); // → { active: 12, bypassed: 3 }
 ```
 
@@ -133,9 +123,13 @@ cooldowns.stats(); // → { active: 12, bypassed: 3 }
 
 Checks and **applies** the cooldown if not active.
 
+### `checkMany(commands, key)` → `CooldownResult`
+
+Checks multiple commands for the same key. Returns the first active cooldown. Does **not** apply any cooldown.
+
 ### `consume(command, key, options?)`
 
-Applies the cooldown — returns `void`. Useful when you don't need the result.
+Applies the cooldown — returns `void`. Fire-and-forget.
 
 ### `peek(command, key)` → `CooldownResult`
 
@@ -146,9 +140,10 @@ Checks **without** applying. Useful for logging or UI.
 | Field | Type | Description |
 |-------|------|-------------|
 | `ok` | `boolean` | `true` if allowed |
-| `remaining` | `number` | Ms until allowed again (0 if ok) |
-| `remainingText` | `string` | Human-readable remaining time (e.g. `"2.5s"`) |
+| `remaining` | `number` | Ms until allowed again (`0` if ok) |
+| `remainingText` | `string` | Human-readable (e.g. `"2.5s"`, `"3m"`) |
 | `expiresAt` | `number` | Unix timestamp when cooldown expires |
+| `command?` | `string` | Set by `checkMany()` — which command is on cooldown |
 
 ## Contributing
 

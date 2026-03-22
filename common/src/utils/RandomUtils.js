@@ -1,6 +1,6 @@
 /**
- * RandomUtils — Random number and value generators for Enerthya.
- * Equivalent to random utilities from Loritta's `common` module.
+ * RandomUtils — Random number and value generators.
+ * 
  */
 
 /**

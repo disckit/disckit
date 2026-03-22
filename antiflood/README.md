@@ -1,7 +1,7 @@
 <div align="center">
   <br />
   <p>
-    <a href="https://github.com/disckit/disckit">
+    <a href="https://disckit.vercel.app">
       <img src="https://raw.githubusercontent.com/disckit/disckit/main/assets/logo.svg" width="480" alt="disckit" />
     </a>
   </p>
@@ -14,7 +14,7 @@
     <a href="https://nodejs.org"><img src="https://img.shields.io/badge/node-%3E%3D18-339933?style=flat-square&logo=node.js&logoColor=white" alt="Node.js" /></a>
   </p>
   <h3>@disckit/antiflood</h3>
-  <p>Advanced rate limiter with sliding window, progressive penalty and role whitelist.</p>
+  <p>Advanced rate limiter for Discord bots — sliding window, progressive penalty and role whitelist.</p>
 </div>
 
 ---
@@ -36,16 +36,6 @@
 npm install @disckit/antiflood
 yarn add @disckit/antiflood
 pnpm add @disckit/antiflood
-```
-
-## TypeScript / ESM
-
-```ts
-// ESM
-import { AntifloodManager, FLOOD_RESULT, PENALTY_MODE } from '@disckit/antiflood';
-
-// CommonJS
-const { AntifloodManager, FLOOD_RESULT, isBlocked } = require('@disckit/antiflood');
 ```
 
 ## Usage
@@ -70,7 +60,7 @@ const check = antiflood.check({
 
 if (isBlocked(check)) {
   return interaction.reply({
-    content: `⛔ Devagar! Tente novamente em ${formatRetryAfter(check.retryAfterMs)}.`,
+    content: `⛔ Slow down! Try again in ${formatRetryAfter(check.retryAfterMs)}.`,
     ephemeral: true,
   });
 }
@@ -93,12 +83,9 @@ antiflood.setRule('gamble', {
   penaltyStep: 15_000,  // +15s per excess hit
   maxPenalty:  120_000, // cap at 2 minutes
 });
-```
 
-### Exponential backoff
-
-```js
-antiflood.setRule('api-call', {
+// Exponential backoff for API-heavy commands
+antiflood.setRule('translate', {
   windowMs:    3000,
   maxHits:     2,
   penaltyMode: PENALTY_MODE.EXPONENTIAL, // doubles: 1s → 2s → 4s → 8s...
@@ -113,9 +100,7 @@ antiflood.setRule('api-call', {
 const s = antiflood.stats();
 // → { hits: 1240, blocked: 37, whitelisted: 5, ratio: 0.03 }
 
-console.log(`${s.blocked} blocked / ${s.hits + s.blocked} total (${(s.ratio * 100).toFixed(1)}%)`);
-
-// Reset counters without clearing flood state
+console.log(`${s.blocked} blocked / ${s.hits + s.blocked} total`);
 antiflood.resetStats();
 ```
 
@@ -132,8 +117,8 @@ antiflood.resetAll();
 
 | Option | Type | Description |
 |--------|------|-------------|
-| `globalRule` | `RuleConfig` | Default rule applied to all commands |
-| `whitelistRoleIds` | `string[]` | Role IDs that always bypass all checks |
+| `globalRule` | `RuleConfig` | Default rule for all commands |
+| `whitelistRoleIds` | `string[]` | Role IDs that always bypass checks |
 | `enabled` | `boolean` | Master switch. Default: `true` |
 
 ### `RuleConfig`
@@ -142,7 +127,7 @@ antiflood.resetAll();
 |-------|------|---------|-------------|
 | `windowMs` | `number` | `5000` | Sliding window size in ms |
 | `maxHits` | `number` | `3` | Allowed hits per window |
-| `penaltyMode` | `"NONE"\|"ADDITIVE"\|"EXPONENTIAL"` | `"ADDITIVE"` | How penalties grow |
+| `penaltyMode` | `"NONE"│"ADDITIVE"│"EXPONENTIAL"` | `"ADDITIVE"` | How penalties grow |
 | `penaltyStep` | `number` | `5000` | Ms added per excess hit |
 | `maxPenalty` | `number` | `60000` | Hard cap on penalty duration |
 
@@ -155,21 +140,15 @@ antiflood.resetAll();
 | `commandName` | `string` | Optional. Used to look up per-command rule |
 | `memberRoleIds` | `string[]` | Optional. Checked against whitelist |
 
-Returns `{ result, retryAfterMs, hitsInWindow, penaltyUntil, rule }`.
-
-### `stats()` → `{ hits, blocked, whitelisted, ratio }`
-
-Lifetime counters since the manager was created (or last `resetStats()`).
-
-### `FLOOD_RESULT`
-
-`"ALLOWED"` · `"THROTTLED"` · `"PENALIZED"` · `"WHITELISTED"`
-
 ### Helpers
 
 `isBlocked(result)` → `boolean` — true when `THROTTLED` or `PENALIZED`
 
 `formatRetryAfter(ms)` → `string` — e.g. `"2m 30s"`
+
+### `FLOOD_RESULT`
+
+`"ALLOWED"` · `"THROTTLED"` · `"PENALIZED"` · `"WHITELISTED"`
 
 ## Contributing
 

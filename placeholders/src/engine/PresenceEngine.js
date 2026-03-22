@@ -1,5 +1,5 @@
 /**
- * PresenceEngine — Presence placeholder substitution for Enerthya.
+ * PresenceEngine — Presence placeholder substitution for Discord bots and dashboards.
  *
  * Handles the {servers} and {members} variables used in bot status messages.
  * These require live data from the bot runtime, so they are separate from

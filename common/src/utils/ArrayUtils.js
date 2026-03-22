@@ -1,6 +1,6 @@
 /**
- * ArrayUtils — Array helper functions for Enerthya.
- * Equivalent to array utilities from Loritta's `common` module.
+ * ArrayUtils — Array helper functions.
+ * 
  */
 
 /**

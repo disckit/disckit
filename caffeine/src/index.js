@@ -1,10 +1,7 @@
 /**
- * enerthya.dev-caffeine
+ * @disckit/caffeine
  *
  * Caffeine-inspired async cache builder for Node.js.
- * Inspired by: https://github.com/ben-manes/caffeine (Java/Kotlin)
- * Used by: Loritta Discord bot (Kotlin/JVM stack)
- *
  * Features:
  *   - Builder pattern       — CacheBuilder.newBuilder()...build()
  *   - expireAfterWrite(ms)  — expire N ms after last write

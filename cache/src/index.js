@@ -1,9 +1,9 @@
 /**
- * enerthya.dev-cache
+ * @disckit/cache
  * Real LRU + TTL cache. Zero external dependencies.
  *
  * @example
- * const { LRUCache, TTLCache, createCache } = require("enerthya.dev-cache");
+ * const { LRUCache, TTLCache, createCache } = require("@disckit/cache");
  *
  * // Plain LRU — evicts oldest when full, no TTL
  * const lru = new LRUCache(100);

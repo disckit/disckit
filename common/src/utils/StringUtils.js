@@ -1,6 +1,6 @@
 /**
- * StringUtils — String helper functions for Enerthya.
- * Equivalent to string utilities from Loritta's `common` module.
+ * StringUtils — String helper functions.
+ * 
  */
 
 const DISCORD_INVITE_REGEX =

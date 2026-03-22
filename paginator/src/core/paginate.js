@@ -27,14 +27,17 @@ function paginate(items, options = {}) {
   const to         = Math.min(from + limit, total);
 
   return {
-    items:      items.slice(from, to),
+    items:       items.slice(from, to),
     page,
     limit,
     total,
     totalPages,
-    hasPrev:  page > 1,
-    hasNext:  page < totalPages,
-    from:     total === 0 ? 0 : from + 1,
+    hasPrev:     page > 1,
+    hasNext:     page < totalPages,
+    isEmpty:     total === 0,
+    isFirstPage: page === 1,
+    isLastPage:  page === totalPages,
+    from:        total === 0 ? 0 : from + 1,
     to,
   };
 }

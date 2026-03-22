@@ -1,6 +1,6 @@
 /**
- * Constants — Shared constants for Enerthya.
- * Equivalent to constants in Loritta's `common` module.
+ * Constants — Shared Discord API constants and time values.
+ * 
  */
 
 /** Discord limits */
@@ -57,7 +57,7 @@ const TIME_SECONDS = {
 /** Package metadata */
 const PACKAGE = {
   NAME: "@disckit/common",
-  VERSION: "1.0.0",
+  VERSION: "1.3.0",
 };
 
 module.exports = {

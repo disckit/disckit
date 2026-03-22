@@ -21,6 +21,7 @@ const {
 const {
   applyPresencePlaceholders,
   buildPresenceContext,
+  buildShardedResolver,
 } = require("./engine/PresenceEngine");
 
 const {
@@ -40,6 +41,7 @@ module.exports = {
   // ── Presence ──────────────────────────────────────────────────────────────
   applyPresencePlaceholders,
   buildPresenceContext,
+  buildShardedResolver,
 
   // ── Variable registry ─────────────────────────────────────────────────────
   VARIABLES,

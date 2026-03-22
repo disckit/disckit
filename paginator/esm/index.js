@@ -3,8 +3,9 @@ import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const pkg = require("../src/index.js");
 
-export const paginate  = pkg.paginate;
-export const fromQuery = pkg.fromQuery;
-export const Paginator = pkg.Paginator;
+export const paginate       = pkg.paginate;
+export const fromQuery      = pkg.fromQuery;
+export const Paginator      = pkg.Paginator;
+export const PaginatorStore = pkg.PaginatorStore;
 
 export default pkg;

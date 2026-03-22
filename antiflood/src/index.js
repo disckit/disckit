@@ -1,4 +1,4 @@
-// enerthya.dev-antiflood
+// @disckit/antiflood
 // Advanced per-user+command+guild rate limiter with burst window,
 // progressive penalty (additive or exponential) and role whitelist.
 // Zero dependencies. Node.js only.

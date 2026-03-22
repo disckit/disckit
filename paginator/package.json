@@ -1,6 +1,6 @@
 {
   "name": "@disckit/paginator",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Universal pagination engine for bots and dashboards. Supports arrays, REST APIs and Discord button state.",
   "main": "src/index.js",
   "author": "disckit",

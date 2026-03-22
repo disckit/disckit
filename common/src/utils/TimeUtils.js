@@ -1,6 +1,6 @@
 /**
- * TimeUtils — Time and duration helper functions for Enerthya.
- * Equivalent to time utilities from Loritta's `common` module.
+ * TimeUtils — Time and duration helper functions.
+ * 
  */
 
 /**

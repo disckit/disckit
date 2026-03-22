@@ -1,7 +1,7 @@
 <div align="center">
   <br />
   <p>
-    <a href="https://github.com/disckit/disckit">
+    <a href="https://disckit.vercel.app">
       <img src="https://raw.githubusercontent.com/disckit/disckit/main/assets/logo.svg" width="546" alt="disckit" />
     </a>
   </p>
@@ -74,7 +74,7 @@ disckit help
 | [`@disckit/caffeine`](../caffeine) | Async cache builder — expireAfterWrite/Access, background refresh, request coalescing |
 | [`@disckit/cache`](../cache) | LRU and TTL cache with O(1) get/set |
 | [`@disckit/placeholders`](../placeholders) | Placeholder engine — `{member:name}`, `{guild:memberCount}` and more |
-| [`@disckit/paginator`](../paginator) | Universal pagination for arrays, REST APIs and Discord buttons/select menus |
+| [`@disckit/paginator`](../paginator) | Universal pagination — buttons, select menus, window, per-user `PaginatorStore` |
 | [`@disckit/i18n`](../i18n) | i18n with dot-notation, interpolation, pluralization and hot-reload |
 | [`@disckit/permissions`](../permissions) | Human-readable Discord permission bitfields — no discord.js required |
 | [`@disckit/cooldown`](../cooldown) | Per-user, per-command cooldown manager with bypass list |

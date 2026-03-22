@@ -1,7 +1,7 @@
 <div align="center">
   <br />
   <p>
-    <a href="https://github.com/disckit/disckit">
+    <a href="https://disckit.vercel.app">
       <img src="https://raw.githubusercontent.com/disckit/disckit/main/assets/logo.svg" width="480" alt="disckit" />
     </a>
   </p>
@@ -21,10 +21,16 @@
 
 ## Features
 
-- **`paginate()`** — slice any array with full metadata in one call
-- **`Paginator`** — stateful class with `next()`, `prev()`, `goTo()`, `buttons()` and `selectMenu()`
+- **`paginate()`** — slice any array with full metadata in one call (`isEmpty`, `isFirstPage`, `isLastPage` included)
+- **`Paginator`** — stateful class with `next()`, `prev()`, `goTo()`, `first()`, `last()`, `reset()`
+- **`Paginator.window()`** — windowed page-number bar for rendering numbered page buttons
+- **`Paginator.selectMenu()`** — Discord-ready select menu options, windowed to 25
+- **`Paginator.fromArray()`** — create a paginator directly from an array, no need to pass `total` manually
+- **`Paginator.fromJSON()`** — restore state from a serialized snapshot
+- **`Paginator.clone()`** — independent copy of any paginator
+- **`Paginator.onChange()`** — subscribe to page changes
+- **`PaginatorStore`** — manage one paginator per user/message with optional TTL and auto-sweep
 - **`fromQuery()`** — parse `?page=&limit=` into skip/limit for any database
-- **`isEmpty`** — zero-result detection without extra logic
 - Full **TypeScript** types included · Zero dependencies · Node.js 18+
 
 ## Installation
@@ -39,11 +45,13 @@ pnpm add @disckit/paginator
 
 ```ts
 // ESM
-import { paginate, Paginator, fromQuery } from '@disckit/paginator';
+import { paginate, Paginator, PaginatorStore, fromQuery } from '@disckit/paginator';
 
 // CommonJS
-const { paginate, Paginator, fromQuery } = require('@disckit/paginator');
+const { paginate, Paginator, PaginatorStore, fromQuery } = require('@disckit/paginator');
 ```
+
+---
 
 ## Usage
 
@@ -60,45 +68,88 @@ result.totalPages;  // Math.ceil(users.length / 10)
 result.hasPrev;     // true
 result.hasNext;     // true
 result.isEmpty;     // false
+result.isFirstPage; // false
+result.isLastPage;  // false
 result.from;        // 11
 result.to;          // 20
 ```
 
-### `Paginator` — Discord buttons
+---
+
+### `Paginator` — Discord button navigation
 
 ```js
 const { Paginator } = require('@disckit/paginator');
+const { ButtonBuilder, ActionRowBuilder, ButtonStyle, ComponentType } = require('discord.js');
 
-const pager = new Paginator({ total: allItems.length, limit: 10 });
+async function run(interaction) {
+  const allItems = await getItems(interaction.guildId);
+  const pager    = new Paginator({ total: allItems.length, limit: 10 });
 
-function buildMessage() {
-  const { prev, next, label } = pager.buttons();
-  const row = new ActionRowBuilder().addComponents(
-    new ButtonBuilder().setCustomId('prev').setLabel('◀').setStyle(ButtonStyle.Secondary).setDisabled(prev.disabled),
-    new ButtonBuilder().setCustomId('next').setLabel('▶').setStyle(ButtonStyle.Secondary).setDisabled(next.disabled),
-  );
-  return { embeds: [buildEmbed(pager.slice(allItems), label)], components: [row] };
+  function buildMessage() {
+    const { prev, next, label } = pager.buttons();
+    const row = new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setCustomId('prev').setLabel('◀').setStyle(ButtonStyle.Secondary).setDisabled(prev.disabled),
+      new ButtonBuilder().setCustomId('next').setLabel('▶').setStyle(ButtonStyle.Secondary).setDisabled(next.disabled),
+    );
+    return { embeds: [buildEmbed(pager.slice(allItems), label)], components: [row] };
+  }
+
+  const msg = await interaction.followUp(buildMessage());
+
+  const collector = msg.createMessageComponentCollector({
+    componentType: ComponentType.Button,
+    filter: i => i.user.id === interaction.user.id,
+    idle: 30_000,
+  });
+
+  collector.on('collect', async i => {
+    if (i.customId === 'prev') pager.prev();
+    if (i.customId === 'next') pager.next();
+    await i.update(buildMessage());
+  });
+
+  collector.on('end', () => msg.edit({ components: [] }).catch(() => {}));
 }
-
-collector.on('collect', async i => {
-  if (i.customId === 'prev') pager.prev();
-  if (i.customId === 'next') pager.next();
-  await i.update(buildMessage());
-});
 ```
 
-### `Paginator` — Discord select menu
+---
+
+### `Paginator.window()` — numbered page buttons
+
+Renders a row of numbered page buttons centered around the current page, exactly like most web paginators.
 
 ```js
-const { Paginator } = require('@disckit/paginator');
+const pager = new Paginator({ total: 200, limit: 10, page: 10 });
 
+// totalPages=20, page=10, window=5 → [8, 9, 10, 11, 12]
+const pages = pager.window(5);
+
+const row = new ActionRowBuilder().addComponents(
+  pages.map(p =>
+    new ButtonBuilder()
+      .setCustomId(`page:${p}`)
+      .setLabel(String(p))
+      .setStyle(p === pager.page ? ButtonStyle.Primary : ButtonStyle.Secondary)
+  )
+);
+
+// On button click:
+const page = parseInt(interaction.customId.split(':')[1]);
+pager.goTo(page);
+```
+
+---
+
+### `Paginator` — select menu navigation
+
+```js
 const pager = new Paginator({ total: 120, limit: 10 });
 
-// Generates Discord-ready options — windowed to max 25 around the current page
-const menu = pager.selectMenu({ customId: 'help-pages', labelPrefix: 'Página' });
+const menu = pager.selectMenu({ customId: 'help-pages', labelPrefix: 'Page' });
 // menu.customId    → "help-pages"
-// menu.placeholder → "Página 1 / 12"
-// menu.options     → [{ label: 'Página 1', value: '1', default: true }, ...]
+// menu.placeholder → "Page 1 / 12"
+// menu.options     → [{ label: 'Page 1', value: '1', default: true }, ...]
 
 collector.on('collect', async i => {
   pager.goTo(Number(i.values[0]));
@@ -106,15 +157,69 @@ collector.on('collect', async i => {
 });
 ```
 
-### `isEmpty` — zero-result detection
+---
+
+### `Paginator.fromArray()` — factory shortcut
 
 ```js
-const pager = new Paginator({ total: results.length, limit: 10 });
-
-if (pager.isEmpty) {
-  return interaction.followUp('Nenhum resultado encontrado.');
-}
+const { paginator, items } = Paginator.fromArray(allUsers, { limit: 10 });
+// paginator.total → allUsers.length (set automatically)
+// items           → first page of users
 ```
+
+---
+
+### `Paginator.onChange()` — react to page changes
+
+```js
+const pager = new Paginator({ total: 50, limit: 10 });
+
+const unsub = pager.onChange((page, paginator) => {
+  console.log(`Page changed to ${page}`);
+});
+
+pager.next(); // → "Page changed to 2"
+unsub();      // stop listening
+pager.next(); // → (no callback)
+```
+
+---
+
+### `PaginatorStore` — one paginator per user
+
+The most important pattern for bots: each user gets their own paginator, automatically cleaned up after inactivity.
+
+```js
+const { PaginatorStore } = require('@disckit/paginator');
+
+// Create once at bot startup
+const store = new PaginatorStore({
+  ttlMs:      2 * 60 * 1000, // expire after 2 min of inactivity
+  sweepEveryMs: 60 * 1000,   // clean up expired entries every minute
+});
+
+// On command — create a paginator for this user
+async function run(interaction) {
+  const items = await getItems(interaction.guildId);
+  const pager = store.create(interaction.user.id, { total: items.length, limit: 10 });
+  await interaction.reply(buildMessage(pager, items));
+}
+
+// On button click
+async function onButton(interaction) {
+  const pager = store.get(interaction.user.id);
+  if (!pager) return interaction.reply({ content: '⏳ Session expired.', ephemeral: true });
+
+  if (interaction.customId === 'prev') store.prev(interaction.user.id);
+  if (interaction.customId === 'next') store.next(interaction.user.id);
+  await interaction.update(buildMessage(pager, items));
+}
+
+// On command end / collector end
+store.delete(interaction.user.id);
+```
+
+---
 
 ### `fromQuery()` — REST API
 
@@ -127,8 +232,10 @@ app.get('/users', async (req, res) => {
   const users = await db.users.find().skip(skip).limit(limit);
   res.json({ users, meta });
 });
-// meta → { page, limit, total, totalPages, hasPrev, hasNext, from, to }
+// meta → { page, limit, total, totalPages, hasPrev, hasNext, isEmpty, from, to }
 ```
+
+---
 
 ## API Reference
 
@@ -139,7 +246,9 @@ app.get('/users', async (req, res) => {
 | `page` | `number` | `1` |
 | `limit` | `number` | `10` |
 
-Returns `PaginateResult<T>`: `items`, `page`, `limit`, `total`, `totalPages`, `hasPrev`, `hasNext`, `isEmpty`, `from`, `to`.
+Returns `PaginateResult<T>`: `items`, `page`, `limit`, `total`, `totalPages`, `hasPrev`, `hasNext`, `isEmpty`, `isFirstPage`, `isLastPage`, `from`, `to`.
+
+---
 
 ### `new Paginator(options)`
 
@@ -149,9 +258,27 @@ Returns `PaginateResult<T>`: `items`, `page`, `limit`, `total`, `totalPages`, `h
 | `limit` | `number` | `10` | Items per page |
 | `page` | `number` | `1` | Initial page |
 
-Methods: `next()` · `prev()` · `goTo(n)` · `first()` · `last()` · `slice(items)` · `buttons(labels?)` · `selectMenu(options?)` · `toJSON()`
+**Navigation:** `next()` · `prev()` · `goTo(n)` · `first()` · `last()` · `reset()`
 
-Getters: `page` · `limit` · `total` · `totalPages` · `hasPrev` · `hasNext` · `isEmpty` · `offset`
+**Helpers:** `buttons(labels?)` · `window(size?)` · `selectMenu(options?)` · `slice(items)` · `clone()` · `onChange(fn)` · `toJSON()`
+
+**Getters:** `page` · `limit` · `total` · `totalPages` · `hasPrev` · `hasNext` · `isEmpty` · `isFirstPage` · `isLastPage` · `offset`
+
+**Static:** `Paginator.fromArray(items, options?)` · `Paginator.fromJSON(data)`
+
+---
+
+### `new PaginatorStore(options?)`
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `ttlMs` | `number` | `0` | Inactivity TTL. `0` = no expiry |
+| `maxSize` | `number` | `1000` | Max paginators before LRU eviction |
+| `sweepEveryMs` | `number` | `0` | Auto-sweep interval. `0` = disabled |
+
+**Methods:** `create(key, options)` · `get(key)` · `has(key)` · `delete(key)` · `clear()` · `keys()` · `next(key)` · `prev(key)` · `goTo(key, page)` · `destroy()`
+
+---
 
 ### `fromQuery(query, options)`
 
@@ -162,6 +289,8 @@ Getters: `page` · `limit` · `total` · `totalPages` · `hasPrev` · `hasNext` 
 | `maxLimit` | `number` | `100` |
 
 Returns `{ skip, limit, page, meta }`.
+
+---
 
 ## Contributing
 

@@ -1,5 +1,5 @@
 /**
- * AsyncUtils — Async helper functions for Enerthya.
+ * AsyncUtils — Async helper functions.
  * Includes sleep, retry, and timeout wrappers.
  */
 

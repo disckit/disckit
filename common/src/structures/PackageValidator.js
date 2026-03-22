@@ -1,7 +1,7 @@
 /**
- * PackageValidator — Validates Enerthya package structure at runtime.
+ * PackageValidator — Validates disckit package structure at runtime.
  * Throws a clear error citing the missing file name if any required file is absent.
- * Inspired by Loritta's internal module validation approach.
+ * 
  */
 
 const fs = require("fs");
@@ -9,7 +9,7 @@ const path = require("path");
 
 const REQUIRED_FILES = [
   "src/index.js",
-  "test.js",
+  "tests/run.js",
   "package.json",
   "README.md",
 ];

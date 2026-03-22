@@ -1,5 +1,5 @@
 /**
- * Default configuration values for enerthya.dev-cache.
+ * Default configuration values for @disckit/cache.
  */
 
 const DEFAULT_MAX_SIZE = 500;
