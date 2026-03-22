@@ -1,0 +1,33 @@
+{
+  "name": "create-disckit-app",
+  "version": "1.0.0",
+  "description": "Scaffold a Discord bot with @disckit packages pre-configured.",
+  "bin": {
+    "create-disckit-app": "./bin/create.js"
+  },
+  "files": [
+    "bin/",
+    "templates/",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "discord",
+    "bot",
+    "scaffold",
+    "disckit",
+    "create",
+    "template"
+  ],
+  "author": "disckit",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/disckit/disckit.git",
+    "directory": "apps/create-disckit-app"
+  },
+  "homepage": "https://github.com/disckit/disckit/tree/main/apps/create-disckit-app#readme"
+}
