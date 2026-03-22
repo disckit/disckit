@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>disckit Guide — Introduction</title>
+  <meta name="theme-color" content="#ff468a"/>
+  <link rel="icon" href="https://raw.githubusercontent.com/disckit/disckit/main/assets/logo.svg"/>
+  <link rel="stylesheet" href="../css/guide.css"/>
+</head>
+<body>
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-brand">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        disckit Guide
+      </div>
+      <div class="search-box">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" placeholder="Search"/>
+        <span class="search-shortcut">⌘ K</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section">Getting Started</div>
+      <div class="nav-item active">Introduction</div>
+      <div class="nav-item">Installation</div>
+      <div class="nav-item">Quick Start</div>
+
+      <div class="nav-section">Your Bot</div>
+      <div class="nav-item" data-collapsible>Creating Your Bot <span class="nav-chevron">›</span></div>
+      <div class="nav-sub">
+        <div class="nav-sub-item">Setup &amp; Login</div>
+        <div class="nav-sub-item">Event Handling</div>
+        <div class="nav-sub-item">Environment Variables</div>
+      </div>
+      <div class="nav-item" data-collapsible>Slash Commands <span class="nav-chevron">›</span></div>
+      <div class="nav-sub">
+        <div class="nav-sub-item">Registering Commands</div>
+        <div class="nav-sub-item">Responding</div>
+        <div class="nav-sub-item">Options &amp; Autocomplete</div>
+      </div>
+      <div class="nav-item">Cooldowns</div>
+      <div class="nav-item">Rate Limiting</div>
+      <div class="nav-item">Pagination</div>
+
+      <div class="nav-section">Packages</div>
+      <div class="nav-item">@disckit/common</div>
+      <div class="nav-item">@disckit/antiflood</div>
+      <div class="nav-item">@disckit/cooldown</div>
+      <div class="nav-item">@disckit/paginator</div>
+      <div class="nav-item">@disckit/permissions</div>
+      <div class="nav-item">@disckit/placeholders</div>
+      <div class="nav-item">@disckit/i18n</div>
+      <div class="nav-item">@disckit/cache</div>
+      <div class="nav-item">@disckit/caffeine</div>
+
+      <div class="nav-section">More To Know</div>
+      <div class="nav-item" data-collapsible>Popular Topics <span class="nav-chevron">›</span></div>
+      <div class="nav-sub">
+        <div class="nav-sub-item">Caching Strategies</div>
+        <div class="nav-sub-item">i18n Setup</div>
+        <div class="nav-sub-item">Placeholder Variables</div>
+        <div class="nav-sub-item">Permission Checks</div>
+      </div>
+
+      <div class="nav-section">Advanced</div>
+      <div class="nav-item">TypeScript</div>
+      <div class="nav-item">ESM vs CJS</div>
+      <div class="nav-item">Contributing</div>
+
+      <div class="nav-section">Additional</div>
+      <div class="nav-item">FAQ</div>
+      <div class="nav-item">Changelog</div>
+    </nav>
+  </aside>
+
+  <!-- Content -->
+  <div class="content-wrap">
+    <div class="topbar">
+      <a class="topbar-back" href="../index.html">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        disckit
+      </a>
+      <span class="topbar-sep">›</span>
+      <span class="topbar-title">Guide</span>
+      <div class="topbar-right">
+        <a class="topbar-edit" href="https://github.com/disckit/disckit" target="_blank" rel="noopener">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Edit this page on GitHub
+        </a>
+      </div>
+    </div>
+
+    <main class="main">
+
+      <h1>Introduction</h1>
+
+      <div class="repo-meta">
+        <a class="repo-link" href="https://github.com/disckit/disckit" target="_blank" rel="noopener">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/></svg>
+          disckit/disckit
+        </a>
+        <span class="star-count">⭐ Stars on GitHub</span>
+      </div>
+
+      <p>
+        If you're reading this, it probably means you want to learn how to build a bot or dashboard
+        using <strong>disckit</strong>. Awesome! You've come to the right place. This guide will teach you things such as:
+      </p>
+
+      <ul class="guide-list">
+        <li>How to get a bot <a href="#">up and running</a> from scratch;</li>
+        <li>How to add <a href="#">cooldowns</a>, <a href="#">rate limiting</a>, and <a href="#">pagination</a> properly;</li>
+        <li>In-depth explanations for <a href="#">caching</a>, <a href="#">i18n</a>, <a href="#">placeholders</a> and <a href="#">permissions</a>;</li>
+        <li>Working with <a href="#">TypeScript</a> and both ESM and CJS environments;</li>
+        <li>And much more.</li>
+      </ul>
+
+      <p>
+        This guide will also cover common errors and how to solve them, keeping your code clean,
+        and setting up a proper development environment. Sounds good? Great! Let's get started.
+      </p>
+
+      <h2>Before you begin...</h2>
+
+      <p>
+        Alright, building a bot is cool and all, but there are some prerequisites. To create a bot
+        with disckit, you should have a fairly decent grasp of JavaScript itself. While you <em>can</em>
+        build a bot with very little knowledge, trying to do so without understanding the language
+        first will only hinder you — you may get stuck on uncomplicated issues and struggle with
+        solutions to incredibly easy problems.
+      </p>
+
+      <div class="info-box">
+        <div class="tip-label">INFO</div>
+        <p>disckit works best with <strong>Node.js 18 or newer</strong>. Make sure you have the right version before starting.</p>
+      </div>
+
+      <p>
+        If you don't know JavaScript but would like to learn it, here are a few links to get started:
+      </p>
+
+      <ul class="res-list">
+        <li><a href="https://eloquentjavascript.net" target="_blank" rel="noopener">Eloquent JavaScript, a free online book</a></li>
+        <li><a href="https://javascript.info" target="_blank" rel="noopener">JavaScript.info, a modern javascript tutorial</a></li>
+        <li><a href="https://www.codecademy.com/learn/introduction-to-javascript" target="_blank" rel="noopener">Codecademy's interactive JavaScript course</a></li>
+        <li><a href="https://nodeschool.io" target="_blank" rel="noopener">Nodeschool, for both JavaScript and Node.js lessons</a></li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank" rel="noopener">MDN's JavaScript guide and full documentation</a></li>
+        <li><a href="https://google.com" target="_blank" rel="noopener">Google, your best friend</a></li>
+      </ul>
+
+      <p>Take your pick, learn some JavaScript, and once you feel confident enough to build a bot, come back!</p>
+
+      <h2>Quick example</h2>
+
+      <p>Here's a minimal bot using disckit — cooldown management and rate limiting in under 30 lines:</p>
+
+      <div class="code-block">
+        <div class="code-header"><span>index.js</span><button class="code-copy">Copy</button></div>
+        <div class="code-body"><pre><span class="kw">import</span> { <span class="cls">Client</span>, <span class="cls">GatewayIntentBits</span> } <span class="kw">from</span> <span class="str">'discord.js'</span>;
+<span class="kw">import</span> { <span class="cls">CooldownManager</span>, <span class="cls">AntifloodManager</span>, <span class="fn">isBlocked</span>, <span class="fn">formatRetryAfter</span> } <span class="kw">from</span> <span class="str">'disckit'</span>;
+
+<span class="kw">const</span> client = <span class="kw">new</span> <span class="cls">Client</span>({ intents: [<span class="cls">GatewayIntentBits</span>.Guilds] });
+<span class="kw">const</span> cooldowns = <span class="kw">new</span> <span class="cls">CooldownManager</span>({ default: <span class="num">3000</span> });
+<span class="kw">const</span> antiflood = <span class="kw">new</span> <span class="cls">AntifloodManager</span>({
+  globalRule: { windowMs: <span class="num">5000</span>, maxHits: <span class="num">5</span>, penaltyMode: <span class="str">'NONE'</span> },
+});
+
+client.<span class="fn">on</span>(<span class="str">'interactionCreate'</span>, <span class="kw">async</span> interaction => {
+  <span class="kw">if</span> (!interaction.<span class="fn">isChatInputCommand</span>()) <span class="kw">return</span>;
+
+  <span class="kw">const</span> flood = antiflood.<span class="fn">check</span>({
+    userId: interaction.user.id,
+    guildId: interaction.guildId ?? <span class="str">'*'</span>,
+    commandName: interaction.commandName,
+    memberRoleIds: [],
+  });
+  <span class="kw">if</span> (<span class="fn">isBlocked</span>(flood)) {
+    <span class="kw">return</span> interaction.<span class="fn">reply</span>({ content: <span class="str">`Slow down! Retry in <span class="op">${</span><span class="fn">formatRetryAfter</span>(flood.retryAfterMs)<span class="op">}</span>.`</span>, ephemeral: <span class="kw">true</span> });
+  }
+
+  <span class="kw">const</span> cd = cooldowns.<span class="fn">check</span>(interaction.commandName, interaction.user.id);
+  <span class="kw">if</span> (!cd.ok) {
+    <span class="kw">return</span> interaction.<span class="fn">reply</span>({ content: <span class="str">`⏳ Wait <span class="op">${</span>cd.remainingText<span class="op">}</span>!`</span>, ephemeral: <span class="kw">true</span> });
+  }
+
+  <span class="cm">// handle command...</span>
+});
+
+client.<span class="fn">login</span>(process.env.BOT_TOKEN);</pre></div>
+      </div>
+
+      <div class="tip-box">
+        <div class="tip-label">TIP</div>
+        <p>You can install <strong>all packages at once</strong> with <code>npm install disckit</code>, or install them individually for smaller bundles.</p>
+      </div>
+
+      <div class="footer-nav">
+        <span></span>
+        <a class="nav-btn" href="#">
+          Installation &nbsp;›
+        </a>
+      </div>
+
+    </main>
+  </div>
+</div>
+<script src="../js/guide.js"></script>
+</body>
+</html>

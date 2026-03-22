@@ -1,0 +1,61 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run tests before publish
+        run: |
+          for pkg in common antiflood cache caffeine cooldown i18n paginator permissions placeholders; do
+            node --test $pkg/tests/run.js
+          done
+
+      - name: Publish scoped packages (@disckit/*)
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_GITHUB }}
+        run: |
+          for pkg in common antiflood cache caffeine cooldown i18n paginator permissions placeholders; do
+            echo "Publishing @disckit/$pkg..."
+            cd $pkg
+            npm publish --access public
+            cd ..
+          done
+
+      - name: Publish meta-package (disckit)
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_UNSCOPED }}
+        run: |
+          cd disckit
+          npm publish --access public
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          token: ${{ secrets.GITHUB_TOKEN }}
