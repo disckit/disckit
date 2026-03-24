@@ -1,6 +1,6 @@
 {
   "name": "create-disckit-app",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Scaffold a Discord bot with @disckit packages pre-configured.",
   "bin": {
     "create-disckit-app": "./bin/create.js"
