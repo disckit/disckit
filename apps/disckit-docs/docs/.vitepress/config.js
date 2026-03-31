@@ -62,6 +62,7 @@ export default defineConfig({
           items: [
             { text: '@disckit/antiflood',    link: '/packages/antiflood' },
             { text: '@disckit/cooldown',     link: '/packages/cooldown' },
+            { text: '@disckit/embed',        link: '/packages/embed' },
             { text: '@disckit/paginator',    link: '/packages/paginator' },
             { text: '@disckit/placeholders', link: '/packages/placeholders' },
             { text: '@disckit/permissions',  link: '/packages/permissions' },
